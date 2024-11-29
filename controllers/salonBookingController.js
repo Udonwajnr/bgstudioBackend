@@ -7,7 +7,7 @@ const sendEmail = require('../utils/sendEmail'); // Utility to send emails
 const createBooking = asyncHandler(async (req, res) => {
     const { clientName, service, dateTime, phoneNumber, email, stylist } = req.body;
 
-    if (!clientName || !service || !dateTime || !phoneNumber || !email || !stylist) {
+    if (!clientName || !service || !dateTime || !phoneNumber) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -34,7 +34,7 @@ const createBooking = asyncHandler(async (req, res) => {
             
             Your booking has been confirmed:
             Service: ${service}
-            Stylist: ${stylist}
+            
             Date: ${date.toDateString()} at ${date.toLocaleTimeString()}
             Unique Code: ${uniqueCode}
             
@@ -52,6 +52,12 @@ const createBooking = asyncHandler(async (req, res) => {
 const getBookings = asyncHandler(async (req, res) => {
     const bookings = await SalonBooking.find();
     res.status(200).json(bookings);
+});
+
+const getBooking = asyncHandler(async (req, res) => {
+    const {id} = req.params
+    const booking = await SalonBooking.findById(id);
+    res.status(200).json(booking);
 });
 
 const updateBookingStatus = asyncHandler(async (req, res) => {
@@ -75,6 +81,44 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'Booking status updated', booking });
 });
 
+const updateBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params; // Booking ID
+    const updates = req.body; // Data to update
+
+    // Validate and process updates if `dateTime` is included
+    if (updates.dateTime) {
+        const newDateTime = new Date(updates.dateTime);
+        const currentDateTime = new Date();
+
+        if (newDateTime <= currentDateTime) {
+            return res.status(400).json({ message: 'Booking date must be in the future.' });
+        }
+    }
+
+    try {
+        // Find the booking by ID
+        const booking = await SalonBooking.findById(id);
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found.' });
+        }
+
+        // Update only fields present in the request
+        Object.keys(updates).forEach((key) => {
+            booking[key] = updates[key];
+        });
+
+        // Save the updated booking
+        await booking.save();
+
+        res.status(200).json({
+            message: 'Booking updated successfully',
+            booking,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating booking.', error: error.message });
+    }
+});
+
 const deleteBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -91,33 +135,45 @@ const deleteBooking = asyncHandler(async (req, res) => {
 const cancelBooking = asyncHandler(async (req, res) => {
     const { uniqueCode } = req.params;
 
+    // Find the booking by uniqueCode
     const booking = await SalonBooking.findOne({ uniqueCode });
 
     if (!booking) {
         return res.status(404).json({ message: 'Booking not found' });
     }
 
+    // Check if the booking is already completed
     if (booking.status === 'Completed') {
         return res.status(400).json({ message: 'Cannot cancel a completed booking' });
     }
 
-    await booking.deleteOne();
+    // Check if the booking is already cancelled
+    if (booking.status === 'Cancelled') {
+        return res.status(400).json({ message: 'Booking is already cancelled' });
+    }
 
+    // Update the booking status to "Cancelled"
+    booking.status = 'Cancelled';
+    await booking.save();
+
+    // Send a cancellation email
     const cancellationMessage = `
         Hello ${booking.clientName},
-        
+
         Your booking for ${booking.service} on ${booking.dateTime.toDateString()} has been cancelled.
     `;
 
     await sendEmail(booking.email, 'Salon Booking Cancellation', cancellationMessage);
 
-    res.status(200).json({ message: 'Booking cancelled successfully' });
+    res.status(200).json({ message: 'Booking cancelled successfully', booking });
 });
 
 module.exports={ 
-    createBooking,
-    cancelBooking,
     getBookings,
+    getBooking,
+    createBooking,
+    updateBooking,
+    updateBookingStatus,
+    cancelBooking,
     deleteBooking,
-    updateBookingStatus
 }

@@ -21,7 +21,7 @@ const salonBookingSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Completed'],
+        enum: ['Pending','Cancelled' ,'Completed'],
         default: 'Pending',
     },
     phoneNumber: {
@@ -30,7 +30,7 @@ const salonBookingSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
+        // required: true,
     },
     stylist: {
         type: String,
@@ -39,7 +39,7 @@ const salonBookingSchema = new mongoose.Schema({
     price: {
         type: Number,
         // required: true,
-        default: 50,
+        // default: 50,
     },
     uniqueCode: {
         type: String,
