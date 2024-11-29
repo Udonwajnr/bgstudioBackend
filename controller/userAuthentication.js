@@ -28,8 +28,6 @@ const RegisterUser = asyncHandler(async (req, res) => {
       throw new Error("User already exists");
     }
   
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
   
     // Generate a verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
@@ -38,7 +36,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
     const newUser = await User.create({
       username,
       email: normalizedEmail,
-      password: hashedPassword,
+      password ,
       verificationToken,
     });
   
@@ -78,22 +76,22 @@ const RegisterUser = asyncHandler(async (req, res) => {
     }
   });
 
-  const VerifyUser = asyncHandler(async (req, res) => {
-    const { token } = req.params;
-  
-    // Find user by token
-    const user = await User.findOne({ verificationToken: token });
-    if (!user) {
-      return res.status(400).json({ msg: "Invalid or expired token" });
-    }
-  
-    // Update user's verification status
-    user.isVerified = true;
-    user.verificationToken = null; // Clear the token
-    await user.save();
-  
-    res.status(200).json({ msg: "Email verified successfully. You can now log in." });
-  });
+const VerifyUser = asyncHandler(async (req, res) => {
+const { token } = req.params;
+
+// Find user by token
+const user = await User.findOne({ verificationToken: token });
+if (!user) {
+    return res.status(400).json({ msg: "Invalid or expired token" });
+}
+
+// Update user's verification status
+user.isVerified = true;
+user.verificationToken = null; // Clear the token
+await user.save();
+
+res.status(200).json({ msg: "Email verified successfully. You can now log in." });
+});
   
 // Log in an existing user
 const loginUser = asyncHandler(async (req, res) => {
@@ -158,41 +156,47 @@ const loginUser = asyncHandler(async (req, res) => {
 //   forgot password
   
 const forgotPassword = asyncHandler(async (req, res) => {
-const { email } = req.body;
+    const { email } = req.body;
 
-if (!email) {
-    res.status(400);
-    throw new Error("Email is required");
-}
+    if (!email) {
+        res.status(400);
+        throw new Error("Email is required");
+    }
 
-const user = await User.findOne({ email });
-if (!user) {
-    res.status(404);
-    throw new Error("User not found");
-}
+    const user = await User.findOne({ email });
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
 
-// Generate reset token
-const resetToken = crypto.randomBytes(32).toString("hex");
-user.resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-await user.save();
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
 
-// Send email
-const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-const transporter = nodemailer.createTransport({ /* Configure transporter */ });
-const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Password Reset",
-    text: `You requested a password reset. Click here to reset your password: ${resetUrl}`,
-};
+    // Send email
+    const resetUrl = `${process.env.CLIENT_URL}/api/auth/reset-password/${resetToken}`;
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+        }, 
+        });
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Password Reset",
+        text: `You requested a password reset. Click here to reset your password: ${resetUrl}`,
+    };
 
-await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
 
-res.status(200).json({ message: "Password reset link sent to your email" });
+    res.status(200).json({ message: "Password reset link sent to your email" });
 });
 
 // refresh Access Token
@@ -226,12 +230,14 @@ res.cookie("refreshToken", "", { httpOnly: true, expires: new Date(0) });
 res.status(200).json({ message: "Logged out successfully" });
 });
 
-
 // reset password
 const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
-    const { newPassword } = req.body;
+    const { newPassword,confirmPassword } = req.body;
   
+    if(newPassword !== confirmPassword){
+        return res.status(400).json({ msg: "Passwords do not match" });
+    }
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
   
     const user = await User.findOne({
@@ -251,7 +257,6 @@ const resetPassword = asyncHandler(async (req, res) => {
   
     res.status(200).json({ message: "Password reset successful" });
   });
-
 
 // Resend Verification Link
 const resendVerificationLink = asyncHandler(async (req, res) => {
@@ -312,7 +317,6 @@ const resendVerificationLink = asyncHandler(async (req, res) => {
     }
   });
 });
-
 
 module.exports = {
   RegisterUser,
