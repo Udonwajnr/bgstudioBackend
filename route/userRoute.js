@@ -8,7 +8,7 @@ const {
   loginUser,
   resendVerificationLink,
   logoutUser,
-} = require("../controller/userAuthentication");
+} = require("../controllers/userAuthentication");
 
 const router = express.Router();
 

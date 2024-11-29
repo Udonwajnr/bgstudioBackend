@@ -25,11 +25,12 @@ const sendResponse = (res, statusCode, message, data = null) => {
     });
 };
 
-app.get('/api/hello', (req, res) => {
+app.get('/', (req, res) => {
     sendResponse(res, 200, 'Hello World! This is a success message');
 });
 // auth 
 app.use("/api/auth",require("./route/userRoute"))
+app.use("/api/auth/book",require("./route/bookingRoute"))
 
 app.listen(port,()=>{
     console.log(`This is running with port ${port}`)

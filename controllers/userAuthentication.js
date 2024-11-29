@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const User = require("../model/users"); // Adjust the path based on your project structure
+const User = require("../models/users"); // Adjust the path based on your project structure
 
 // Register a new user
 const RegisterUser = asyncHandler(async (req, res) => {
