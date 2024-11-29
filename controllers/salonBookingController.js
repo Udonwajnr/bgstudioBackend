@@ -28,21 +28,23 @@ const createBooking = asyncHandler(async (req, res) => {
         uniqueCode,
     });
 
+    if(newBooking.email){
+        const bookingDetails = `
+            Hello ${clientName},
+            
+            Your booking has been confirmed:
+            Service: ${service}
+            Stylist: ${stylist}
+            Date: ${date.toDateString()} at ${date.toLocaleTimeString()}
+            Unique Code: ${uniqueCode}
+            
+            To cancel, click the link below:
+            http://localhost:3000/api/salon/cancel/${uniqueCode}
+        `;
+    
+        await sendEmail(email, 'Salon Booking Confirmation', bookingDetails);
+    }
     // Send confirmation email
-    const bookingDetails = `
-        Hello ${clientName},
-        
-        Your booking has been confirmed:
-        Service: ${service}
-        Stylist: ${stylist}
-        Date: ${date.toDateString()} at ${date.toLocaleTimeString()}
-        Unique Code: ${uniqueCode}
-        
-        To cancel, click the link below:
-        http://localhost:3000/api/salon/cancel/${uniqueCode}
-    `;
-
-    await sendEmail(email, 'Salon Booking Confirmation', bookingDetails);
 
     res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
 });
@@ -85,7 +87,6 @@ const deleteBooking = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: 'Booking deleted successfully', booking });
 });
-
 
 const cancelBooking = asyncHandler(async (req, res) => {
     const { uniqueCode } = req.params;

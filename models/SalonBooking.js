@@ -34,11 +34,11 @@ const salonBookingSchema = new mongoose.Schema({
     },
     stylist: {
         type: String,
-        required: true,
+        // required: true,
     },
     price: {
         type: Number,
-        required: true,
+        // required: true,
         default: 50,
     },
     uniqueCode: {

@@ -9,7 +9,7 @@ const {
 } = require('../controllers/salonBookingController');
 
 // Routes
-router.post('/', createBooking); // Create a booking
+router.post('/book', createBooking); // Create a booking
 router.get('/', getBookings); // Get all bookings
 router.patch('/:id/status', updateBookingStatus); // Update booking status
 router.delete('/cancel/:uniqueCode', cancelBooking); // Cancel a booking

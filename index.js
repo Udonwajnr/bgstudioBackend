@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 });
 // auth 
 app.use("/api/auth",require("./route/userRoute"))
-app.use("/api/auth/book",require("./route/bookingRoute"))
+app.use("/api/auth/salon",require("./route/bookingRoute"))
 
 app.listen(port,()=>{
     console.log(`This is running with port ${port}`)
