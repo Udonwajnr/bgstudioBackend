@@ -48,8 +48,8 @@ const createBooking = asyncHandler(async (req, res) => {
             <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f6f6f6;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
                     <tr>
-                        <td align="center" style="padding: 40px 0; background-color: #000000;">
-                            <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="150" style="display: block;border-radius: 100%;">
+                        <td align="center" style="padding: 30px 0; background-color: #000000;">
+                            <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="120" style="display: block;border-radius: 100%;">
                         </td>
                     </tr>
                     <tr>
@@ -205,9 +205,39 @@ const cancelBooking = asyncHandler(async (req, res) => {
 
     // Send a cancellation email
     const cancellationMessage = `
-        Hello ${booking.clientName},
-
-        Your booking for ${booking.service} on ${booking.dateTime.toDateString()} has been cancelled.
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Booking Cancellation - BG Unisex Salon</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f6f6f6;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                <tr>
+                    <td align="center" style="padding: 30px 0; background-color: #000000;">
+                        <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j" alt="BG Unisex Salon" width="120" style="display: block; border-radius: 50%;">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 30px;">
+                        <h1 style="color: #000000; font-size: 24px; margin-bottom: 20px; text-align: center;">Booking Cancelled</h1>
+                        <p style="color: #666666; font-size: 16px; line-height: 24px;">Hello ${booking.clientName},</p>
+                        <p style="color: #666666; font-size: 16px; line-height: 24px;">Your booking for ${booking.service} on ${booking.dateTime.toDateString()} has been cancelled.</p>
+                        <p style="color: #666666; font-size: 16px; line-height: 24px;">We hope to see you again soon!</p>
+                    </td>
+                </tr>
+                <tr>
+                        <td style="padding: 20px 30px; background-color: #f6f6f6; text-align: center;">
+                            <p style="color: #666666; font-size: 14px; margin: 0 0 10px;">BG Unisex Salon</p>
+                            <div class="footer">
+                                <p>&copy; ${new Date().getFullYear()} BG Unisex Salon. All rights reserved.</p>
+                            </div>
+                        </td>
+                    </tr>
+            </table>
+        </body>
+        </html>
     `;
 
     await sendEmail(booking.email, 'Salon Booking Cancellation', cancellationMessage);
