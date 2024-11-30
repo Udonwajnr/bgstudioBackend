@@ -3,6 +3,14 @@ const asyncHandler = require('express-async-handler');
 const crypto = require('crypto'); // To generate unique code
 const SalonBooking = require('../models/SalonBooking');
 const sendEmail = require('../utils/sendEmail'); // Utility to send emails
+const fs = require('fs');
+const path = require('path');
+
+// Read and convert the image to Base64
+const imagePath = path.join(__dirname, '../IMG-20241130-WA0002.jpg'); // Replace with your image path
+const imageBase64 = fs.readFileSync(imagePath).toString('base64');
+// console.log(imageBase64)
+
 
 const createBooking = asyncHandler(async (req, res) => {
     const { clientName, service, dateTime, phoneNumber, email, stylist } = req.body;
@@ -10,7 +18,7 @@ const createBooking = asyncHandler(async (req, res) => {
     if (!clientName || !service || !dateTime || !phoneNumber) {
         return res.status(400).json({ message: 'All fields are required' });
     }
-
+    const normalizedEmail = email.toLowerCase();
     const date = new Date(dateTime);
     if (date <= new Date()) {
         return res.status(400).json({ message: 'Booking date must be in the future' });
@@ -23,23 +31,62 @@ const createBooking = asyncHandler(async (req, res) => {
         service,
         dateTime,
         phoneNumber,
-        email,
+        email:normalizedEmail,
         stylist,
         uniqueCode,
     });
 
     if(newBooking.email){
         const bookingDetails = `
-            Hello ${clientName},
-            
-            Your booking has been confirmed:
-            Service: ${service}
-            
-            Date: ${date.toDateString()} at ${date.toLocaleTimeString()}
-            Unique Code: ${uniqueCode}
-            
-            To cancel, click the link below:
-            http://localhost:3000/api/salon/cancel/${uniqueCode}
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Booking Confirmation - BG Unisex Salon</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f6f6f6;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                    <tr>
+                        <td align="center" style="padding: 40px 0; background-color: #000000;">
+                            <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="150" style="display: block;border-radius: 100%;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h1 style="color: #000000; font-size: 24px; margin-bottom: 20px; text-align: center;">Booking Confirmed!</h1>
+                            <p style="color: #666666; font-size: 16px; line-height: 24px;">Hello ${clientName},</p>
+                            <p style="color: #666666; font-size: 16px; line-height: 24px;">Your booking has been confirmed for the following service:</p>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f9f9f9; border-radius: 4px; margin-bottom: 20px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <p style="color: #666666; font-size: 14px; margin: 0 0 10px;"><strong>Service:</strong> ${service}</p>
+                                        <p style="color: #666666; font-size: 14px; margin: 0 0 10px;"><strong>Date:</strong> ${date.toDateString()}</p>
+                                        <p style="color: #666666; font-size: 14px; margin: 0 0 10px;"><strong>Time:</strong> ${date.toLocaleTimeString()}</p>
+                                        <p style="color: #666666; font-size: 14px; margin: 0;"><strong>Booking Code:</strong> ${uniqueCode}</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <a href="http://localhost:3000/api/salon/cancel/${uniqueCode}" style="display: inline-block; padding: 12px 24px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Cancel Booking</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px 30px; background-color: #f6f6f6; text-align: center;">
+                            <p style="color: #666666; font-size: 14px; margin: 0 0 10px;">BG Unisex Salon</p>
+                            <div class="footer">
+                                <p>&copy; ${new Date().getFullYear()} BG Unisex Salon. All rights reserved.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
         `;
     
         await sendEmail(email, 'Salon Booking Confirmation', bookingDetails);

@@ -12,7 +12,7 @@ const {
 const {authenticateToken} = require("../middleware/authenticateMiddle");
 // Routes
 
-router.use(authenticateToken)
+// router.use(authenticateToken)
 router.post('/book', createBooking); // Create a booking
 router.get('/', getBookings); // Get all bookings
 router.get('/:id', getBooking); // Get all bookings

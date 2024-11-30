@@ -31,7 +31,7 @@ router.post("/reset-password/:token", resetPassword);
 router.post("/login", loginUser);
 
 // Resend verification link
-router.post("/resend-verification", resendVerificationLink);
+router.post("/resend-verification", resendVerificationLink); 
 
 // Logout user
 router.post("/logout", logoutUser);
