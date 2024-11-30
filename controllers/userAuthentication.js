@@ -56,7 +56,71 @@ const RegisterUser = asyncHandler(async (req, res) => {
         from: process.env.EMAIL_USER,
         to: newUser.email,
         subject: "Verify Your Email",
-        text: `Hello ${newUser.username},\n\nPlease verify your email by clicking the link below:\n${verificationLink}`,
+        html: `
+        <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Email Verification</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                      <td style="padding: 0;">
+                          <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                              <!-- Header with Logo -->
+                              <tr>
+                                  <td style="padding: 40px 20px; text-align: center; background-color: #000000;">
+                                      <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="120" style="display: block;border-radius: 100%;">
+                                  </td>
+                              </tr>
+                              
+                              <!-- Main Content -->
+                              <tr>
+                                  <td style="padding: 40px 30px;">
+                                      <h1 style="margin: 0 0 20px; color: #333333; font-size: 24px; font-weight: bold; text-align: center;">Welcome to BG Unisex Salon</h1>
+                                      
+                                      <p style="margin: 0 0 20px; color: #666666; font-size: 16px; line-height: 1.5; text-align: center;">
+                                          Hello ${newUser.username},
+                                      </p>
+                                      
+                                      <p style="margin: 0 0 30px; color: #666666; font-size: 16px; line-height: 1.5; text-align: center;">
+                                          Thank you for joining our community. To start your journey with us, please verify your email address.
+                                      </p>
+                                      
+                                      <!-- Verification Button -->
+                                      <table role="presentation" style="width: 100%;">
+                                          <tr>
+                                              <td style="text-align: center;">
+                                                  <a href="${verificationLink}" style="display: inline-block; padding: 14px 30px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 14px;">Verify Email</a>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      
+                                      <p style="margin: 30px 0 0; color: #999999; font-size: 14px; line-height: 1.5; text-align: center;">
+                                          If you didn't create an account with BG Unisex Salon, please ignore this email.
+                                      </p>
+                                  </td>
+                              </tr>
+                              
+                              <!-- Footer -->
+                              <tr>
+                                  <td style="padding: 20px 30px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #eeeeee;">
+                                      <p style="margin: 0; color: #999999; font-size: 14px;">
+                                          © 2024 BG Unisex Salon. All rights reserved.
+                                      </p>
+                                      <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
+                                          This is an automated email, please do not reply.
+                                      </p>
+                                  </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+              </table>
+          </body>
+          </html>`,
       };
   
       transporter.sendMail(mailOptions, (err, info) => {
@@ -191,7 +255,76 @@ const forgotPassword = asyncHandler(async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Password Reset",
-        text: `You requested a password reset. Click here to reset your password: ${resetUrl}`,
+        text: `<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Password Reset Request</title>
+                </head>
+                <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4;">
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 0;">
+                                <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <!-- Header with Logo -->
+                                    <tr>
+                                        <td style="padding: 40px 20px; text-align: center; background-color: #000000;">
+                                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20241130-WA0002.jpg-eC7X5rWygTghPQSq4GHhAtqZaUSTC3.jpeg" alt="BG Unisex Salon" style="width: 150px; height: auto;">
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Main Content -->
+                                    <tr>
+                                        <td style="padding: 40px 30px;">
+                                            <h1 style="margin: 0 0 20px; color: #333333; font-size: 24px; font-weight: bold; text-align: center;">Password Reset Request</h1>
+                                            
+                                            <p style="margin: 0 0 20px; color: #666666; font-size: 16px; line-height: 1.5; text-align: center;">
+                                                You've requested to reset your password for your BG Unisex Salon account. If you didn't make this request, please ignore this email.
+                                            </p>
+                                            
+                                            <p style="margin: 0 0 30px; color: #666666; font-size: 16px; line-height: 1.5; text-align: center;">
+                                                To reset your password, click the button below:
+                                            </p>
+                                            
+                                            <!-- Reset Password Button -->
+                                            <table role="presentation" style="width: 100%;">
+                                                <tr>
+                                                    <td style="text-align: center;">
+                                                        <a href="${resetUrl}" style="display: inline-block; padding: 14px 30px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 14px;">Reset Password</a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            
+                                            <p style="margin: 30px 0 0; color: #999999; font-size: 14px; line-height: 1.5; text-align: center;">
+                                                If the button doesn't work, you can copy and paste this link into your browser:
+                                                <br>
+                                                <a href="${resetUrl}" style="color: #000000; text-decoration: underline;">${resetUrl}</a>
+                                            </p>
+                                            
+                                            <p style="margin: 20px 0 0; color: #999999; font-size: 14px; line-height: 1.5; text-align: center;">
+                                                This password reset link will expire in 24 hours for security reasons.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Footer -->
+                                    <tr>
+                                        <td style="padding: 20px 30px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #eeeeee;">
+                                            <p style="margin: 0; color: #999999; font-size: 14px;">
+                                                © 2024 BG Unisex Salon. All rights reserved.
+                                            </p>
+                                            <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
+                                                This is an automated email, please do not reply.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -303,7 +436,78 @@ const resendVerificationLink = asyncHandler(async (req, res) => {
     from: process.env.EMAIL_USER,
     to: user.email,
     subject: "Email Verification Link",
-    text: `Hi ${user.username},\n\nPlease verify your email by clicking the link below:\n\n${verificationUrl}\n\nIf you did not request this, please ignore this email.`,
+    html: `
+    <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Email Verification</title>
+              </head>
+              <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4;">
+                  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                          <td style="padding: 0;">
+                              <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                  <!-- Header with Logo -->
+                                  <tr>
+                                      <td style="padding: 40px 20px; text-align: center; background-color: #000000;">
+                                          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20241130-WA0002.jpg-eC7X5rWygTghPQSq4GHhAtqZaUSTC3.jpeg" alt="BG Unisex Salon" style="width: 150px; height: auto;">
+                                      </td>
+                                  </tr>
+                                  
+                                  <!-- Main Content -->
+                                  <tr>
+                                      <td style="padding: 40px 30px;">
+                                          <h1 style="margin: 0 0 20px; color: #333333; font-size: 24px; font-weight: bold; text-align: center;">Verify Your Email</h1>
+                                          
+                                          <p style="margin: 0 0 20px; color: #666666; font-size: 16px; line-height: 1.5; text-align: center;">
+                                              Hi ${user.username},
+                                          </p>
+                                          
+                                          <p style="margin: 0 0 30px; color: #666666; font-size: 16px; line-height: 1.5; text-align: center;">
+                                              Thank you for signing up with BG Unisex Salon. To complete your registration and ensure the security of your account, please verify your email address.
+                                          </p>
+                                          
+                                          <!-- Verification Button -->
+                                          <table role="presentation" style="width: 100%;">
+                                              <tr>
+                                                  <td style="text-align: center;">
+                                                      <a href="${verificationUrl}" style="display: inline-block; padding: 14px 30px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 14px;">Verify Email</a>
+                                                  </td>
+                                              </tr>
+                                          </table>
+                                          
+                                          <p style="margin: 30px 0 0; color: #999999; font-size: 14px; line-height: 1.5; text-align: center;">
+                                              If the button doesn't work, you can copy and paste this link into your browser:
+                                              <br>
+                                              <a href="${verificationUrl}" style="color: #000000; text-decoration: underline;">${verificationUrl}</a>
+                                          </p>
+                                          
+                                          <p style="margin: 20px 0 0; color: #999999; font-size: 14px; line-height: 1.5; text-align: center;">
+                                              If you did not request this, please ignore this email.
+                                          </p>
+                                      </td>
+                                  </tr>
+                                  
+                                  <!-- Footer -->
+                                  <tr>
+                                      <td style="padding: 20px 30px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #eeeeee;">
+                                          <p style="margin: 0; color: #999999; font-size: 14px;">
+                                              © 2024 BG Unisex Salon. All rights reserved.
+                                          </p>
+                                          <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
+                                              This is an automated email, please do not reply.
+                                          </p>
+                                      </td>
+                                  </tr>
+                              </table>
+                          </td>
+                      </tr>
+                  </table>
+              </body>
+              </html>
+          `,
   };
 
   transporter.sendMail(mailOptions, (err, info) => {
