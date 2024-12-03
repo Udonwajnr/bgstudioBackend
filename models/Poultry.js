@@ -1,15 +1,13 @@
 const mongoose = require('mongoose');
 
-const PoultryProductSchema = new mongoose.Schema({
+const poultryProductSchema = new mongoose.Schema({
     productName: {
         type: String,
         required: true,
-        trim: true,
     },
     category: {
         type: String,
         required: true,
-        trim: true,
     },
     price: {
         type: Number,
@@ -23,11 +21,15 @@ const PoultryProductSchema = new mongoose.Schema({
     },
     sales: {
         type: Number,
-        default: 0, // Starts with 0 sales
+        default: 0,
         min: 0,
     },
-}, {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    image: {
+        type: String, // URL of the image
+        required: true,
+    },
 });
 
-module.exports = mongoose.model('PoultryProduct', PoultryProductSchema);
+const PoultryProduct = mongoose.model('PoultryProduct', poultryProductSchema);
+
+module.exports = PoultryProduct;

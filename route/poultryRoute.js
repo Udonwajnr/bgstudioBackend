@@ -6,7 +6,12 @@ const {
     getProductById,
     updateProduct,
     deleteProduct,
+    updateSales,
+    searchAndFilterProducts
 } = require('../controllers/PoultryProductController');
+
+ // Search and filter products
+router.get('/search', searchAndFilterProducts);
 
 // Create a product
 router.post('/', createProduct);
@@ -19,6 +24,9 @@ router.get('/:id', getProductById);
 
 // Update a product
 router.put('/:id', updateProduct);
+
+// Update sales
+router.put('/:id/sales', updateSales); 
 
 // Delete a product
 router.delete('/:id', deleteProduct);
