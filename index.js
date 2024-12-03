@@ -54,6 +54,7 @@ app.get('/', (req, res) => {
 // auth 
 app.use("/api/auth",require("./route/userRoute"))
 app.use("/api/salon",require("./route/bookingRoute"))
+app.use("/api/poultry",require("./route/poultryRoute"))
 
 app.listen(port,()=>{
     console.log(`This is running with port ${port}`)
