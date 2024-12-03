@@ -30,24 +30,6 @@ const sendResponse = (res, statusCode, message, data = null) => {
     });
 };
 
-//     const htmlContent = `
-//       <!DOCTYPE html>
-//       <html lang="en">
-//       <head>
-//           <meta charset="UTF-8">
-//           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//           <title>HTML Endpoint</title>
-//       </head>
-//       <body>
-//           <h1>Welcome to the HTML Endpoint!</h1>
-//           <p>This is a simple HTML response served by Express.</p>
-//           <img src="data:image/png;base64,${imageBase64}"alt="BG Unisex Salon" width="150" style="display: block;border-radius: 100%;">
-//           </body>
-//       </html>
-//     `;
-//     res.send(htmlContent);
-//   });
-
 app.get('/', (req, res) => {
     sendResponse(res, 200, 'Hello World! This is a success message');
 });
@@ -55,6 +37,7 @@ app.get('/', (req, res) => {
 app.use("/api/auth",require("./route/userRoute"))
 app.use("/api/salon",require("./route/bookingRoute"))
 app.use("/api/poultry",require("./route/poultryRoute"))
+app.use("/api/hair",require("./route/hairProductRoute"))
 
 app.listen(port,()=>{
     console.log(`This is running with port ${port}`)
