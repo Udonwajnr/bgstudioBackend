@@ -39,6 +39,9 @@ app.use("/api/salon",require("./route/bookingRoute"))
 app.use("/api/poultry",require("./route/poultryRoute"))
 app.use("/api/hair",require("./route/hairProductRoute"))
 app.use("/api/poultry-order",require("./route/poultryOrderRoute"))
+app.use('/api/hair-order', require("./route/hairOrderRoute"));
+app.use('/api/poultry-shipping',require("./route/poultryShippingRoutes") );
+app.use('/api/poultry-shipping', require("./route/hairShippingRoutes"));
 
 app.listen(port,()=>{
     console.log(`This is running with port ${port}`)
