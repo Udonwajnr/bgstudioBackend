@@ -68,7 +68,6 @@ const getOrderById = asyncHandler(async (req, res) => {
     res.status(200).json(order);
   });
   
-
   const updateOrderStatus = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -102,5 +101,4 @@ const getOrderById = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'Order deleted successfully' });
   });
   
-
 module.exports={createOrder,getAllOrders,getOrderById,updateOrderStatus,deleteOrder}

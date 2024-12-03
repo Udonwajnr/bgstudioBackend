@@ -6,8 +6,7 @@ const color = require("colors")
 const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const apiKeyMiddleware = require("./authMiddleware");
-const fs = require('fs');
-const path = require('path');
+
 
 let cors = require("cors")
 const port=3000
@@ -33,6 +32,7 @@ const sendResponse = (res, statusCode, message, data = null) => {
 app.get('/', (req, res) => {
     sendResponse(res, 200, 'Hello World! This is a success message');
 });
+
 // auth 
 app.use("/api/auth",require("./route/userRoute"))
 app.use("/api/salon",require("./route/bookingRoute"))

@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
+const Counter = require('./counter');
 
 const orderSchema = new mongoose.Schema(
   {
+    orderId: {
+      type: String,
+      unique: true,
+    },
     customer: {
       type: String,
       required: true,
@@ -53,9 +58,28 @@ const orderSchema = new mongoose.Schema(
     ],
   },
   {
-    timestamps: true, // Automatically add createdAt and updatedAt fields
+    timestamps: true,
   }
 );
+
+// Pre-save hook to generate unique orderId
+orderSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    try {
+      const counter = await Counter.findOneAndUpdate(
+        { name: 'orderId' },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true } // Create the counter if it doesn't exist
+      );
+      this.orderId = `ORD${String(counter.seq).padStart(3, '0')}`;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
+  }
+});
 
 const Order = mongoose.model('Order', orderSchema);
 
