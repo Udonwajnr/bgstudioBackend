@@ -71,7 +71,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
                           <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                               <!-- Header with Logo -->
                               <tr>
-                                  <td style="padding: 40px 20px; text-align: center; background-color: #000000;">
+                                  <td align="center" style="padding: 30px 0; background-color: #000000;">
                                       <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="120" style="display: block;border-radius: 100%;">
                                   </td>
                               </tr>
@@ -97,21 +97,14 @@ const RegisterUser = asyncHandler(async (req, res) => {
                                               </td>
                                           </tr>
                                       </table>
-                                      
-                                      <p style="margin: 30px 0 0; color: #999999; font-size: 14px; line-height: 1.5; text-align: center;">
-                                          If you didn't create an account with BG Unisex Salon, please ignore this email.
-                                      </p>
                                   </td>
                               </tr>
                               
                               <!-- Footer -->
                               <tr>
-                                  <td style="padding: 20px 30px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #eeeeee;">
+                                  <td style="padding: 20px 30px; background-color: #f6f6f6; text-align: center;">
                                       <p style="margin: 0; color: #999999; font-size: 14px;">
-                                          © 2024 BG Unisex Salon. All rights reserved.
-                                      </p>
-                                      <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
-                                          This is an automated email, please do not reply.
+                                          &copy; ${new Date().getFullYear()} BG Unisex Salon. All rights reserved.
                                       </p>
                                   </td>
                               </tr>
@@ -255,7 +248,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Password Reset",
-        text: `<!DOCTYPE html>
+        html: `<!DOCTYPE html>
                 <html lang="en">
                 <head>
                     <meta charset="UTF-8">
@@ -269,11 +262,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
                                 <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                                     <!-- Header with Logo -->
                                     <tr>
-                                        <td style="padding: 40px 20px; text-align: center; background-color: #000000;">
-                                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20241130-WA0002.jpg-eC7X5rWygTghPQSq4GHhAtqZaUSTC3.jpeg" alt="BG Unisex Salon" style="width: 150px; height: auto;">
+                                       <td align="center" style="padding: 30px 0; background-color: #000000;">
+                                          <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="120" style="display: block;border-radius: 100%;">
                                         </td>
                                     </tr>
-                                    
                                     <!-- Main Content -->
                                     <tr>
                                         <td style="padding: 40px 30px;">
@@ -309,16 +301,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
                                     </tr>
                                     
                                     <!-- Footer -->
-                                    <tr>
-                                        <td style="padding: 20px 30px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #eeeeee;">
-                                            <p style="margin: 0; color: #999999; font-size: 14px;">
-                                                © 2024 BG Unisex Salon. All rights reserved.
-                                            </p>
-                                            <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
-                                                This is an automated email, please do not reply.
-                                            </p>
-                                        </td>
-                                    </tr>
+                                  <tr>
+                                      <td style="padding: 20px 30px; background-color: #f6f6f6; text-align: center;">
+                                          <p style="color: #666666; font-size: 14px; margin: 0 0 10px;">BG Unisex Salon</p>
+                                          <div class="footer">
+                                              <p>&copy; ${new Date().getFullYear()} BG Unisex Salon. All rights reserved.</p>
+                                          </div>
+                                      </td>
+                                  </tr>
                                 </table>
                             </td>
                         </tr>
@@ -450,9 +440,9 @@ const resendVerificationLink = asyncHandler(async (req, res) => {
                           <td style="padding: 0;">
                               <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                                   <!-- Header with Logo -->
-                                  <tr>
-                                      <td style="padding: 40px 20px; text-align: center; background-color: #000000;">
-                                          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20241130-WA0002.jpg-eC7X5rWygTghPQSq4GHhAtqZaUSTC3.jpeg" alt="BG Unisex Salon" style="width: 150px; height: auto;">
+                                 <tr>
+                                      <td align="center" style="padding: 30px 0; background-color: #000000;">
+                                          <img src="https://res.cloudinary.com/djwombdbg/image/upload/f_auto,q_auto/x1ulyjciqb1r38h5c47j"alt="BG Unisex Salon" width="120" style="display: block;border-radius: 100%;">
                                       </td>
                                   </tr>
                                   
@@ -491,15 +481,13 @@ const resendVerificationLink = asyncHandler(async (req, res) => {
                                   </tr>
                                   
                                   <!-- Footer -->
-                                  <tr>
-                                      <td style="padding: 20px 30px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #eeeeee;">
-                                          <p style="margin: 0; color: #999999; font-size: 14px;">
-                                              © 2024 BG Unisex Salon. All rights reserved.
-                                          </p>
-                                          <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
-                                              This is an automated email, please do not reply.
-                                          </p>
-                                      </td>
+                                 <tr>
+                                    <td style="padding: 20px 30px; background-color: #f6f6f6; text-align: center;">
+                                        <p style="color: #666666; font-size: 14px; margin: 0 0 10px;">BG Unisex Salon</p>
+                                        <div class="footer">
+                                            <p>&copy; ${new Date().getFullYear()} BG Unisex Salon. All rights reserved.</p>
+                                        </div>
+                                    </td>
                                   </tr>
                               </table>
                           </td>
