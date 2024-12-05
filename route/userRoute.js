@@ -8,7 +8,10 @@ const {
   loginUser,
   resendVerificationLink,
   logoutUser,
+  authorizeUserRole
 } = require("../controllers/userAuthentication");
+const {authenticateToken} = require("../middleware/authenticateMiddle"); // Middleware for authentication
+const authorizeRole=require("../middleware/roleMiddleware")
 
 const router = express.Router();
 
@@ -27,6 +30,12 @@ router.get("/refresh-token", refreshAccessToken);
 // Reset password
 router.post("/reset-password/:token", resetPassword);
 
+router.put(
+  "/update-role/:id",
+  authorizeRole(["superuser"]),
+  authenticateToken,
+  authorizeUserRole
+)
 // User login
 router.post("/login", loginUser);
 
@@ -35,5 +44,7 @@ router.post("/resend-verification", resendVerificationLink);
 
 // Logout user
 router.post("/logout", logoutUser);
+
+
 
 module.exports = router;
