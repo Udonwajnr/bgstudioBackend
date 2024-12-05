@@ -1,7 +1,7 @@
 const HairOrder = require('../models/HairOrder');
 
 // Create a New Order
-async function createOrder(req, res) {
+async function createOrder(req, res) {  
   try {
     const { customer, email, phone, address, items } = req.body;
 

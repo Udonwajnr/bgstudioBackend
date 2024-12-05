@@ -4,7 +4,7 @@ const hairShippingSchema = new mongoose.Schema(
   {
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Order', // Reference to the Hair Order model
+      ref: 'HairOrder', // Reference to the Hair Order model
       required: true,
     },
     customerName: {

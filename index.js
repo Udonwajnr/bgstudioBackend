@@ -38,10 +38,14 @@ app.use("/api/auth",require("./route/userRoute"))
 app.use("/api/salon",require("./route/bookingRoute"))
 app.use("/api/poultry",require("./route/poultryRoute"))
 app.use("/api/hair",require("./route/hairProductRoute"))
+
+// starting
 app.use("/api/poultry-order",require("./route/poultryOrderRoute"))
 app.use('/api/hair-order', require("./route/hairOrderRoute"));
 app.use('/api/poultry-shipping',require("./route/poultryShippingRoutes") );
-app.use('/api/poultry-shipping', require("./route/hairShippingRoutes"));
+app.use('/api/hair-shipping', require("./route/hairShippingRoutes"));
+app.use('/api/hair-payments', require("./route/hairPaymentRoutes"));
+app.use('/api/poultry-payments', require("./route/poultryPaymentRoutes"));
 
 app.listen(port,()=>{
     console.log(`This is running with port ${port}`)

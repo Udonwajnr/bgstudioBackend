@@ -63,6 +63,16 @@ const HairOrderSchema = new mongoose.Schema(
         },
       },
     ],
+    paymentStatus: {
+      type: String,
+      enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+      default: 'Pending',
+    },
+    stripePaymentId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   {
     timestamps: true, // Automatically add createdAt and updatedAt fields

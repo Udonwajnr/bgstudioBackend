@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Counter = require('./counter');
 
-const orderSchema = new mongoose.Schema(
+const PoultryOrderSchema = new mongoose.Schema(
   {
     orderId: {
       type: String,
@@ -56,6 +56,16 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
+    paymentStatus: {
+      type: String,
+      enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+      default: 'Pending',
+    },
+    stripePaymentId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   {
     timestamps: true,
@@ -63,7 +73,7 @@ const orderSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to generate unique orderId
-orderSchema.pre('save', async function (next) {
+PoultryOrderSchema.pre('save', async function (next) {
   if (this.isNew) {
     try {
       const counter = await Counter.findOneAndUpdate(
@@ -81,6 +91,6 @@ orderSchema.pre('save', async function (next) {
   }
 });
 
-const Order = mongoose.model('Order', orderSchema);
+const PoultryOrder = mongoose.model('PoultryOrder', PoultryOrderSchema);
 
-module.exports = Order;
+module.exports = PoultryOrder;

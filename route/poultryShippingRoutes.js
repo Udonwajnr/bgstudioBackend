@@ -10,18 +10,18 @@ const {
 const router = express.Router();
 
 // Create a new shipping entry
-router.post('/shipping', createShipping);
+router.post('/', createShipping);
 
 // Get all shipping entries
-router.get('/shipping', getAllShipping);
+router.get('/', getAllShipping);
 
 // Get a shipping entry by ID
-router.get('/shipping/:id', getShippingById);
+router.get('/:id', getShippingById);
 
 // Update shipping status
-router.patch('/shipping/:id/status', updateShippingStatus);
+router.patch('/:id/status', updateShippingStatus);
 
 // Delete a shipping entry
-router.delete('/shipping/:id', deleteShipping);
+router.delete('/:id', deleteShipping);
 
 module.exports = router;
