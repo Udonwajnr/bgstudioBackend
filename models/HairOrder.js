@@ -19,10 +19,10 @@ const HairOrderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    address: {
-      type: String,
-      required: true,
-    },
+    // address: {
+    //   type: String,
+    //   required: true,
+    // },
     date: {
       type: Date,
       default: Date.now,
@@ -68,7 +68,7 @@ const HairOrderSchema = new mongoose.Schema(
       enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
       default: 'Pending',
     },
-    stripePaymentId: {
+    flutterwaveTransactionId: {
       type: String,
       unique: true,
       sparse: true,

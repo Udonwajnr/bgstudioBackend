@@ -35,7 +35,13 @@ const userSchema = new Schema(
     },
     resetPasswordExpire:{
       type:Date
-    }
+    },
+    role: {
+      type: String,
+      enum: ["admin", "manager", "customer"], // Specify the allowed roles
+      default: "customer", // Default role
+      required: true,
+    },
   },
   { timestamps: true }
 );

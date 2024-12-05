@@ -61,7 +61,7 @@ const PoultryOrderSchema = new mongoose.Schema(
       enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
       default: 'Pending',
     },
-    stripePaymentId: {
+    flutterwaveTransactionId: {
       type: String,
       unique: true,
       sparse: true,
@@ -79,7 +79,7 @@ PoultryOrderSchema.pre('save', async function (next) {
       const counter = await Counter.findOneAndUpdate(
         { name: 'orderId' },
         { $inc: { seq: 1 } },
-        { new: true, upsert: true } // Create the counter if it doesn't exist
+        { new: true, upsert: true }
       );
       this.orderId = `ORD${String(counter.seq).padStart(3, '0')}`;
       next();

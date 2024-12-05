@@ -1,12 +1,13 @@
 const asyncHandler = require('express-async-handler');
-const Order = require('../models/PoultryOrder');
 const PoultryProduct = require('../models/Poultry');
-const stripe = require('../config/stripe');
+const PoultryOrder = require('../models/PoultryOrder');
+const axios = require('axios');
 
-// Create a new order with payment
-// don"t forget to add email once payment is complete
+const FLUTTERWAVE_SECRET_KEY = 'FLWSECK_TEST-77e9a58563a4d1eca68329a087c988fa-X';
+const FLUTTERWAVE_BASE_URL = 'https://api.flutterwave.com/v3';
+
 const createOrder = asyncHandler(async (req, res) => {
-  const { customer, email, phone, items, paymentMethodId } = req.body;
+  const { customer, email, phone, items } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ message: 'Order must contain at least one item.' });
@@ -36,35 +37,53 @@ const createOrder = asyncHandler(async (req, res) => {
     await product.save();
   }
 
-  // Create payment intent with Stripe
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total * 100), // Amount in cents
-      currency: 'usd',
-      payment_method: paymentMethodId,
-      confirm: true, // Immediately confirm payment
+    // Create a payment request with Flutterwave
+    const paymentData = {
+      tx_ref: `ORD-${Date.now()}`, // Unique transaction reference
+      amount: total,
+      currency: 'NGN', // Adjust currency as needed
+      redirect_url: 'https://your-redirect-url.com',
+      customer: {
+        email,
+        phone_number: phone,
+        name: customer,
+      },
+    };
+
+    const response = await axios.post(`${FLUTTERWAVE_BASE_URL}/payments`, paymentData, {
+      headers: {
+        Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
+      },
     });
 
-    // Create the order
-    const order = new Order({
-      customer,
-      email,
-      phone,
-      items: items.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      total,
-      paymentStatus: 'Paid',
-      stripePaymentId: paymentIntent.id,
-    });
+    if (response.data.status === 'success') {
+      // Save the order with a "Pending" payment status
+      const order = new PoultryOrder({
+        customer,
+        email,
+        phone,
+        items: items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total,
+        paymentStatus: 'Pending',
+        flutterwaveTransactionId: response.data.data.id, // Transaction ID from Flutterwave
+      });
 
-    const createdOrder = await order.save();
-    res.status(201).json(createdOrder);
+      const createdOrder = await order.save();
+      res.status(201).json({
+        order: createdOrder,
+        paymentLink: response.data.data.link, // Payment link to redirect the customer
+      });
+    } else {
+      throw new Error('Failed to create payment request');
+    }
   } catch (error) {
-    // Roll back stock if payment fails
+    // Rollback stock if payment fails
     for (const item of items) {
       const product = await PoultryProduct.findById(item.productId);
       product.stock += item.quantity;
@@ -72,32 +91,78 @@ const createOrder = asyncHandler(async (req, res) => {
       await product.save();
     }
 
-    return res.status(400).json({ message: 'Payment failed', error: error.message });
+    return res.status(400).json({ message: 'Payment initialization failed', error: error.message });
+  }
+});
+
+// Get order by ID
+const getOrderById = asyncHandler(async (req, res) => {
+  const { orderId } = req.params; // Extract orderId from request parameters
+
+  try {
+    // Fetch the order by ID
+    const order = await PoultryOrder.findById(orderId).populate('items.productId', 'productName stock price');
+
+    if (!order) {
+      // If the order doesn't exist, return a 404 error
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // If the order exists, return it in the response
+    res.status(200).json(order);
+  } catch (error) {
+    // Handle invalid ID format or other errors
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({ message: 'Invalid order ID format' });
+    }
+    res.status(500).json({ message: 'Error fetching the order', error: error.message });
+  }
+});
+
+const verifyPayment = asyncHandler(async (req, res) => {
+  const { transactionId } = req.body;
+
+  try {
+    const response = await axios.get(
+      `${FLUTTERWAVE_BASE_URL}/transactions/${transactionId}/verify`,
+      {
+        headers: {
+          Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
+        },
+      }
+    );
+
+    if (response.data.status === 'success' && response.data.data.status === 'successful') {
+      // Update order status to Paid
+      const order = await PoultryOrder.findOneAndUpdate(
+        { flutterwaveTransactionId: transactionId },
+        { paymentStatus: 'Paid' },
+        { new: true }
+      );
+
+      if (order) {
+        res.status(200).json({ message: 'Payment verified and order updated', order });
+      } else {
+        res.status(404).json({ message: 'Order not found' });
+      }
+    } else {
+      res.status(400).json({ message: 'Payment verification failed' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error verifying payment', error: error.message });
   }
 });
 
 const getAllOrders = asyncHandler(async (req, res) => {
-    const orders = await Order.find().populate('items.productId', 'productName category');
+    const orders = await PoultryOrder.find().populate('items.productId', 'productName category');
     res.status(200).json(orders);
   });
 
-const getOrderById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-  
-    const order = await Order.findById(id).populate('items.productId', 'productName category');
-  
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-  
-    res.status(200).json(order);
-  });
-  
 const updateOrderStatus = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const order = await Order.findById(id);
+  const order = await PoultryOrder.findById(id);
 
   if (!order) {
     return res.status(404).json({ message: 'Order not found' });
@@ -116,7 +181,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 const deleteOrder = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const order = await Order.findById(id);
+  const order = await PoultryOrder.findById(id);
 
   if (!order) {
     return res.status(404).json({ message: 'Order not found' });
@@ -125,5 +190,5 @@ const deleteOrder = asyncHandler(async (req, res) => {
   await order.deleteOne();
   res.status(200).json({ message: 'Order deleted successfully' });
 });
-  
-module.exports={createOrder,getAllOrders,getOrderById,updateOrderStatus,deleteOrder}
+
+module.exports={createOrder,getAllOrders,getOrderById,updateOrderStatus,deleteOrder,verifyPayment}

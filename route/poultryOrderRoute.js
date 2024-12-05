@@ -6,12 +6,14 @@ const {
   getOrderById,
   updateOrderStatus,
   deleteOrder,
+  verifyPayment,
 } = require('../controllers/poultryOrderController');
 
 // CRUD endpoints for orders
-router.post('/', createOrder);
 router.get('/', getAllOrders);
-router.get('/:id', getOrderById);
+router.get('/:orderId', getOrderById);
+router.post('/', createOrder);
+router.post('/verify-payment', verifyPayment);
 router.put('/:id', updateOrderStatus);
 router.delete('/:id', deleteOrder);
 

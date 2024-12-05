@@ -1,6 +1,7 @@
 const express = require('express');
 const {
-  createOrder,
+  createHairOrder,
+  verifyPayment,
   getAllOrders,
   getOrderById,
   updateOrderStatus,
@@ -10,13 +11,16 @@ const {
 const router = express.Router();
 
 // Create a new order
-router.post('/', createOrder);
+router.post('/', createHairOrder);
+
+// Verify payment
+router.post('/verify-payment', verifyPayment);
 
 // Get all orders
 router.get('/', getAllOrders);
 
 // Get an order by ID
-router.get('/:id', getOrderById);
+router.get('/:orderId', getOrderById);
 
 // Update order status
 router.patch('/:id/status', updateOrderStatus);

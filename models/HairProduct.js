@@ -19,11 +19,18 @@ const HairProductSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+
     // stock
     quantity: {
       type: Number,
       required: true,
     },
+    stock: {
+      type: Number,
+      required: true,
+      min: 0,
+      default:0
+  },
     brand: {
       type: String,
     },

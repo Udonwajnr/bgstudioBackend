@@ -8,7 +8,7 @@ const User = require("../models/users"); // Adjust the path based on your projec
 // Register a new user
 const RegisterUser = asyncHandler(async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
-  
+
     // Check if all fields are provided
     if (!username || !email || !password || !confirmPassword) {
       res.status(400);
@@ -27,7 +27,6 @@ const RegisterUser = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("User already exists");
     }
-  
   
     // Generate a verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
@@ -131,7 +130,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
       res.status(500);
       throw new Error("Failed to create user");
     }
-  });
+});
 
 const VerifyUser = asyncHandler(async (req, res) => {
 const { token } = req.params;
@@ -208,10 +207,9 @@ const loginUser = asyncHandler(async (req, res) => {
       email: user.email,
       accessToken,
     });
-  });
+});
 
 //   forgot password
-  
 const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
@@ -345,12 +343,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       res.status(403);
       throw new Error("Invalid or expired refresh token");
     }
-  });
+});
   
 // logout user
 const logoutUser = asyncHandler(async (req, res) => {
-res.cookie("refreshToken", "", { httpOnly: true, expires: new Date(0) });
-res.status(200).json({ message: "Logged out successfully" });
+   res.cookie("refreshToken", "", { httpOnly: true, expires: new Date(0) });
+   res.status(200).json({ message: "Logged out successfully" });
 });
 
 // reset password
@@ -379,7 +377,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     await user.save();
   
     res.status(200).json({ message: "Password reset successful" });
-  });
+});
 
 // Resend Verification Link
 const resendVerificationLink = asyncHandler(async (req, res) => {
