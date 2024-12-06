@@ -10,7 +10,7 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
     try {
         const decoded = JWT.verify(token, process.env.JWT_SECRET);
         console.log('Decoded token:', decoded); // Debugging log
-        req.user = decoded.id; // Attach decoded ID to request object
+        req.user = decoded; // Attach the entire decoded token (which includes role)
         next(); // Proceed to the next middleware or route handler
     } catch (err) {
         console.error('Token verification failed:', err); // Log error for debugging

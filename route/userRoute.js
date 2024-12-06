@@ -32,8 +32,8 @@ router.post("/reset-password/:token", resetPassword);
 
 router.put(
   "/update-role/:id",
-  authorizeRole(["superuser"]),
   authenticateToken,
+  authorizeRole(["superuser"]),
   authorizeUserRole
 )
 // User login
