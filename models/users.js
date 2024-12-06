@@ -20,6 +20,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      minlength: [5, 'Password must be at least 5 characters long.']
     },
     isVerified: {
       type: Boolean,
