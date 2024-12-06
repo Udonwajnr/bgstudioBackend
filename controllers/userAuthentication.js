@@ -333,7 +333,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   
       const newAccessToken = jwt.sign(
-        { id: decoded.id},
+        { id: decoded.id,role: decoded.role},
         process.env.JWT_SECRET,
         { expiresIn: "15m" }
       );
