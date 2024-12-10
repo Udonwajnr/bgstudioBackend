@@ -7,12 +7,28 @@ const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const apiKeyMiddleware = require("./authMiddleware");
 
+const corsOptions = {
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        // 'https://medical-inventory-beta.vercel.app',
+        // "https://rosek-beta.vercel.app"
+      ];
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true
+  };
+  
 
 let cors = require("cors")
 const port=3000
 
 app.use(cookieParser())
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
 
