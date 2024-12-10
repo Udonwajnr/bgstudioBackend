@@ -33,7 +33,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended:false}))
 
 // console.log(process.env.API_KEY)
-app.use(apiKeyMiddleware);
+// app.use(apiKeyMiddleware);
 
 // Read and convert the image to Base64
 
