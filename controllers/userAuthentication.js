@@ -49,7 +49,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
         },
       });
   
-      const verificationLink = `${process.env.CLIENT_URL}/api/auth/verify/${verificationToken}`;
+      const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
   
       const mailOptions = {
         from: process.env.EMAIL_USER,
