@@ -234,7 +234,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     await user.save();
 
     // Send email
-    const resetUrl = `${process.env.CLIENT_URL}/api/auth/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
