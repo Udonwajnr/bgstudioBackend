@@ -54,7 +54,7 @@ app.use("/api/auth",require("./route/userRoute"))
 app.use("/api/salon",require("./route/bookingRoute"))
 app.use("/api/poultry",require("./route/poultryRoute"))
 app.use("/api/hair",require("./route/hairProductRoute"))
-
+app.use("/api",require("./route/authenticateToken"))
 // starting
 app.use("/api/poultry-order",require("./route/poultryOrderRoute"))
 app.use('/api/hair-order', require("./route/hairOrderRoute"));
