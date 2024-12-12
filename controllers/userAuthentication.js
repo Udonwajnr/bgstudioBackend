@@ -323,7 +323,6 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // refresh Access Token
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
-  
     if (!refreshToken) {
       res.status(403);
       throw new Error("No refresh token found");

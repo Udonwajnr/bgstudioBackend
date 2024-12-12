@@ -25,7 +25,7 @@ router.get("/verify/:token", VerifyUser);
 router.post("/forgot-password", forgotPassword);
 
 // Refresh access token
-router.get("/refresh-token", refreshAccessToken);
+router.post("/refresh-token", refreshAccessToken);
 
 // Reset password
 router.post("/reset-password/:token", resetPassword);
