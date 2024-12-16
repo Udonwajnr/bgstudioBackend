@@ -183,13 +183,13 @@ const loginUser = asyncHandler(async (req, res) => {
     const accessToken = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "3m" }
+      { expiresIn: "15m" }
     );
   
     const refreshToken = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "5m" }
+      { expiresIn: "7d" }
     );
   
     // Set the refresh token in an HTTP-only cookie
@@ -197,7 +197,7 @@ const loginUser = asyncHandler(async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      maxAge: 7 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   
     // Respond with the access token
@@ -335,7 +335,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       const newAccessToken = jwt.sign(
         { id: decoded.id,role: decoded.role},
         process.env.JWT_SECRET,
-        { expiresIn: "3m" }
+        { expiresIn: "15m" }
       );
   
       res.status(200).json({ accessToken: newAccessToken });
