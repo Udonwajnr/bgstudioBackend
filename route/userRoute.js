@@ -8,43 +8,33 @@ const {
   loginUser,
   resendVerificationLink,
   logoutUser,
-  authorizeUserRole
+  authorizeUserRole,
 } = require("../controllers/userAuthentication");
-const {authenticateToken} = require("../middleware/authenticateMiddle"); // Middleware for authentication
-const authorizeRole=require("../middleware/roleMiddleware")
+const { authenticateToken } = require("../middleware/authenticateMiddle"); // Middleware for authentication
+const authorizeRole = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-// User registration
-router.post("/register", RegisterUser);
+// **User Authentication**
+router.post("/register", RegisterUser); // User registration
+router.post("/login", loginUser);       // User login
+router.post("/logout", logoutUser);     // Logout user
+router.post("/refresh-token", refreshAccessToken); // Refresh access token
 
-// Verify email
-router.get("/verify/:token", VerifyUser);
+// **Email Verification**
+router.get("/verify/:token", VerifyUser);                   // Verify email
+router.post("/resend-verification", resendVerificationLink); // Resend verification link
 
-// Forgot password
-router.post("/forgot-password", forgotPassword);
+// **Password Management**
+router.post("/forgot-password", forgotPassword);          // Forgot password
+router.post("/reset-password/:token", resetPassword);     // Reset password
 
-// Refresh access token
-router.post("/login", loginUser);
-router.post("/refresh-token", refreshAccessToken);
-
-// Reset password
-router.post("/reset-password/:token", resetPassword);
-
+// **User Role Management**
 router.put(
   "/update-role/:id",
   authenticateToken,
   authorizeRole(["superuser"]),
   authorizeUserRole
-)
-// User login
-
-// Resend verification link
-router.post("/resend-verification", resendVerificationLink); 
-
-// Logout user
-router.post("/logout", logoutUser);
-
-
+); // Update user role
 
 module.exports = router;

@@ -51,8 +51,8 @@ app.get('/', (req, res) => {
 
 // Routes
 // Authentication routes
-app.use("/api/auth", require("./route/userRoute"));
 app.use("/api", require("./route/authenticateToken")); // Protected route
+app.use("/api/auth", require("./route/userRoute"));
 
 // Salon routes
 app.use("/api/salon", require("./route/bookingRoute"));
