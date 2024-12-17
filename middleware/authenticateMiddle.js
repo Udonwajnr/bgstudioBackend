@@ -15,7 +15,7 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
         // console.log('Decoded token:', decoded); // Debug log (remove in production)
 
         // Attach necessary fields to req.user
-        req.user = { id: decoded.id, role: decoded.role }; // Attach only required data
+        req.user = { id: decoded.id, role: decoded.role, username:decoded.username, email:decoded.email, isVerified:decoded.isVerified}; // Attach only required data
         next(); // Proceed to next middleware
     } catch (err) {
         console.error('Token verification failed:', err); // Debugging log

@@ -181,13 +181,13 @@ const loginUser = asyncHandler(async (req, res) => {
   
     // Generate tokens
     const accessToken = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, username:user.username, email:user.email, isVerified:user.isVerified },
       process.env.JWT_SECRET,
       { expiresIn: "15m" }
     );
   
     const refreshToken = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, username:user.username, email:user.email, isVerified:user.isVerified },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: "7d" }
     );
@@ -334,7 +334,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   
       const newAccessToken = jwt.sign(
-        { id: decoded.id,role: decoded.role},
+        { id: decoded.id,role: decoded.role, username:decoded.username, email:decoded.email, isVerified:decoded.isVerified},
         process.env.JWT_SECRET,
         { expiresIn: "15m" }
       );
