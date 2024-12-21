@@ -103,9 +103,24 @@ const getBookings = asyncHandler(async (req, res) => {
 });
 
 const getBooking = asyncHandler(async (req, res) => {
-    const {id} = req.params
-    const booking = await SalonBooking.findById(id);
-    res.status(200).json(booking);
+    const { id } = req.params;
+
+    try {
+        const booking = await SalonBooking.findById(id);
+
+        if (!booking) {
+            return res.status(404).json({ 
+                message: "Booking not found" 
+            });
+        }
+
+        res.status(200).json(booking);
+    } catch (err) {
+        res.status(500).json({ 
+            message: "Server error occurred", 
+            error: err.message 
+        });
+    }
 });
 
 const updateBookingStatus = asyncHandler(async (req, res) => {
