@@ -180,6 +180,27 @@ const deleteBooking = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'Booking deleted successfully', booking });
 });
 
+const deleteMultipleBookings = asyncHandler(async (req, res) => {
+    const { ids } = req.body; // Expect an array of booking IDs in the request body.
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: 'Invalid or missing IDs' });
+    }
+
+    // Delete all bookings with the provided IDs
+    const result = await SalonBooking.deleteMany({ _id: { $in: ids } });
+
+    if (result.deletedCount === 0) {
+        return res.status(404).json({ message: 'No bookings found to delete' });
+    }
+
+    res.status(200).json({
+        message: `${result.deletedCount} booking(s) deleted successfully`,
+        deletedCount: result.deletedCount,
+    });
+});
+
+
 const cancelBooking = asyncHandler(async (req, res) => {
     const { uniqueCode } = req.params;
 
@@ -254,4 +275,5 @@ module.exports={
     updateBookingStatus,
     cancelBooking,
     deleteBooking,
+    deleteMultipleBookings
 }

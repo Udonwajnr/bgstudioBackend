@@ -8,6 +8,7 @@ const {
     updateBookingStatus,
     deleteBooking,
     cancelBooking,
+    deleteMultipleBookings
 } = require('../controllers/salonBookingController');
 const {authenticateToken} = require("../middleware/authenticateMiddle");
 // Routes
@@ -20,5 +21,5 @@ router.patch('/:id/status', updateBookingStatus); // Update booking status
 router.put('/:id', updateBooking);
 router.delete('/cancel/:uniqueCode', cancelBooking); // Cancel a booking
 router.delete('/:id', deleteBooking); // Delete a booking by ID
-
+router.post('/delete-multiple-bookings', deleteMultipleBookings);
 module.exports = router;
