@@ -102,6 +102,7 @@ const getBookings = asyncHandler(async (req, res) => {
     res.status(200).json(bookings);
 });
 
+
 const getBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -127,7 +128,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['Pending', 'Completed'].includes(status)) {
+    if (!['Pending', 'Completed',"Cancelled"].includes(status)) {
         return res.status(400).json({ message: 'Invalid status' });
     }
 
