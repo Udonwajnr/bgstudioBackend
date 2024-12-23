@@ -21,7 +21,7 @@ const HairProductSchema = new mongoose.Schema(
     },
 
     // stock
-    quantity: {
+    quantity: {//stock
       type: Number,
       required: true,
     },

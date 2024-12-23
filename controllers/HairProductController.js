@@ -1,20 +1,36 @@
 const asyncHandler = require('express-async-handler');
 const HairProduct = require('../models/HairProduct');
+const upload = require('../upload/multerConfig');
 
 // Create a new Hair Product
 const createHairProduct = asyncHandler(async (req, res) => {
     try {
-        const newProduct = new HairProduct(req.body);
-
-        // Automatically calculate discount price if provided
-        if (req.body.discountPrice && req.body.discountPrice >= req.body.price) {
-            return res.status(400).json({ message: 'Discount price must be less than the original price' });
-        }
-
-        const savedProduct = await newProduct.save();
-        res.status(201).json(savedProduct);
+      // Extract uploaded file URLs from Multer
+      const photos = req.files.photos?.map((file) => file.path); // Cloudinary URLs for photos
+      const video = req.files.video?.[0]?.path;                 // Cloudinary URL for video
+  
+      // Combine file URLs with the request body
+      const productData = {
+        ...req.body,
+        photos,
+        video,
+      };
+  
+      // Automatically calculate discount price if provided
+      if (productData.discountPrice && productData.discountPrice >= productData.price) {
+        return res.status(400).json({ message: 'Discount price must be less than the original price' });
+      }
+  
+      // Save the new product to the database
+      const newProduct = new HairProduct(productData);
+      const savedProduct = await newProduct.save();
+  
+      res.status(201).json({ success: true, data: savedProduct });
+      
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.log('Error creating hair product:', error.stack || error);
+        res.status(500).json({ success: false, message: 'An error occurred during video upload' });
+      
     }
 });
 
