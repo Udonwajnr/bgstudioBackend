@@ -58,11 +58,13 @@ const HairProductSchema = new mongoose.Schema(
     // Specific fields for wigs
     hairType: {
       type: String,
-      enum: ['human', 'synthetic', 'blended'],
+      // enum: ['human', 'synthetic', 'blended'],
+
+      
     },
     wigStyle: {
       type: String,
-      enum: ['curly', 'straight', 'wavy', 'braided'],
+      // enum: ['curly', 'straight', 'wavy', 'braided'],
     },
     hairLength: {
       type: String,
@@ -75,11 +77,11 @@ const HairProductSchema = new mongoose.Schema(
     },
     capSize: {
       type: String,
-      enum: ['small', 'medium', 'large'],
+      // enum: ['small', 'medium', 'large'],
     },
     capType: {
       type: String,
-      enum: ['laceFront', 'fullLace', 'uPart', '360Lace'],
+      // enum: ['laceFront', 'fullLace', 'uPart', '360Lace'],
     },
     adjustableStraps: {
       type: Boolean,
@@ -105,7 +107,7 @@ const HairProductSchema = new mongoose.Schema(
     // Specific fields for hair products
     productType: {
       type: String,
-      enum: ['shampoo', 'conditioner', 'oil', 'serum', 'mask', 'gel', 'spray'],
+      // enum: ['shampoo', 'conditioner', 'oil', 'serum', 'mask', 'gel', 'spray'],
     },
     targetHairType: {
       type: [String], // Array of target hair types
