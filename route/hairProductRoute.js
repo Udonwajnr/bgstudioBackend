@@ -23,7 +23,11 @@ router.get('/', getAllHairProducts);
 router.get('/:id', getHairProductById);
 
 // Update a Hair Product
-router.put('/:id', updateHairProduct);
+router.put('/:id', upload.fields([
+    { name: 'photos', maxCount: 5 }, // Allow up to 5 photos
+    { name: 'video', maxCount: 1 }, // Allow only 1 video
+  ]), updateHairProduct);
+  
 
 // Delete a Hair Product
 router.delete('/:id', deleteHairProduct);

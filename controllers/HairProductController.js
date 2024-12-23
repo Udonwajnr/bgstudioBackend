@@ -99,25 +99,61 @@ const getHairProductById = asyncHandler(async (req, res) => {
 
 // Update a Hair Product
 const updateHairProduct = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const updatedProduct = await HairProduct.findByIdAndUpdate(id, req.body, { new: true });
-
-        if (!updatedProduct) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        // Check discount logic
-        if (req.body.discountPrice && req.body.discountPrice >= updatedProduct.price) {
-            return res.status(400).json({ message: 'Discount price must be less than the original price' });
-        }
-
-        res.status(200).json(updatedProduct);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+  try {
+    // Find the existing product
+    const product = await HairProduct.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
     }
+
+    // Extract new uploaded files
+    const newPhotos = req.files.photos?.map((file) => file.path); // New photo URLs
+    const newVideo = req.files.video?.[0]?.path;                 // New video URL
+
+    // Merge new files with existing ones if not replacing
+    const updatedPhotos = newPhotos
+      ? [...(product.photos || []), ...newPhotos]
+      : product.photos;
+
+    const updatedVideo = newVideo || product.video;
+
+    // Handle removal of specific photos or videos if specified
+    if (req.body.removePhotos) {
+      const photosToRemove = JSON.parse(req.body.removePhotos); // Expecting a JSON array of URLs
+      photosToRemove.forEach((photo) => {
+        const index = updatedPhotos.indexOf(photo);
+        if (index > -1) updatedPhotos.splice(index, 1);
+      });
+    }
+
+    if (req.body.removeVideo && updatedVideo === req.body.removeVideo) {
+      updatedVideo = null;
+    }
+
+    // Combine updated data
+    const updatedData = {
+      ...req.body,
+      photos: updatedPhotos,
+      video: updatedVideo,
+    };
+
+    // Validate discount logic
+    if (updatedData.discountPrice && updatedData.discountPrice >= updatedData.price) {
+      return res.status(400).json({ message: 'Discount price must be less than the original price' });
+    }
+
+    // Update product in the database
+    const updatedProduct = await HairProduct.findByIdAndUpdate(id, updatedData, { new: true });
+
+    res.status(200).json({ success: true, data: updatedProduct });
+  } catch (error) {
+    console.error('Error updating hair product:', error.stack || error);
+    res.status(500).json({ success: false, message: 'An error occurred during product update' });
+  }
 });
+
 
 // Delete a Hair Product
 const deleteHairProduct = asyncHandler(async (req, res) => {
