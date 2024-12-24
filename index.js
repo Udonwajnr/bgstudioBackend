@@ -27,7 +27,7 @@ const corsOptions = {
 
 // Application setup
 const app = express();
-const port = 3000||8000;
+const port = 8000;
 
 // Middleware
 app.use(cookieParser());
