@@ -15,6 +15,8 @@ const createHairProduct = asyncHandler(async (req, res) => {
         photos,
         video,
       };
+
+      console.log(video,productData)
   
       // Automatically calculate discount price if provided
       if (productData.discountPrice && productData.discountPrice >= productData.price) {
@@ -24,7 +26,6 @@ const createHairProduct = asyncHandler(async (req, res) => {
       // Save the new product to the database
       const newProduct = new HairProduct(productData);
       const savedProduct = await newProduct.save();
-  
       res.status(201).json({ success: true, data: savedProduct });
       
     } catch (error) {
@@ -153,7 +154,6 @@ const updateHairProduct = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, message: 'An error occurred during product update' });
   }
 });
-
 
 // Delete a Hair Product
 const deleteHairProduct = asyncHandler(async (req, res) => {
