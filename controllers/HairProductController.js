@@ -15,9 +15,8 @@ const createHairProduct = asyncHandler(async (req, res) => {
         photos,
         video,
       };
-
-      console.log(video,productData)
-  
+      
+      console.log(req.body)
       // Automatically calculate discount price if provided
       if (productData.discountPrice && productData.discountPrice >= productData.price) {
         return res.status(400).json({ message: 'Discount price must be less than the original price' });
@@ -31,7 +30,7 @@ const createHairProduct = asyncHandler(async (req, res) => {
     } catch (error) {
         console.log('Error creating hair product:', error.stack || error);
         res.status(500).json({ success: false, message: 'An error occurred during video upload' });
-      
+
     }
 });
 
