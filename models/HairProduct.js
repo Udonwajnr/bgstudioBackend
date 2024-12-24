@@ -51,6 +51,8 @@ const HairProductSchema = new mongoose.Schema(
     },
     photos: {
       type: [String], // Array of URLs for product photos
+      required: true,
+    
     },
     video: {
       type: String, // URL for video (if any)
@@ -59,8 +61,6 @@ const HairProductSchema = new mongoose.Schema(
     hairType: {
       type: String,
       // enum: ['human', 'synthetic', 'blended'],
-
-      
     },
     wigStyle: {
       type: String,
