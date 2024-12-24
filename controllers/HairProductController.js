@@ -29,8 +29,7 @@ const createHairProduct = asyncHandler(async (req, res) => {
       
     } catch (error) {
         console.log('Error creating hair product:', error.stack || error);
-        res.status(500).json({ success: false, message: 'An error occurred during video upload' });
-
+        res.status(500).json({ success: false,  error: error.message  });
     }
 });
 
