@@ -162,7 +162,7 @@ const loginUser = asyncHandler(async (req, res) => {
     // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(401);
+      res.status(404);
       throw new Error("Invalid email or password");
     }
   
@@ -196,7 +196,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   
@@ -208,6 +208,41 @@ const loginUser = asyncHandler(async (req, res) => {
       role:user.role,
       accessToken,
     });
+});
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  // Check if refresh token exists
+  if (!refreshToken) {
+    res.status(401);
+    throw new Error('Refresh token missing');
+  }
+
+  try {
+    // Verify the refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.id);
+
+    // Check if user exists
+    if (!user) {
+      res.status(401);
+      throw new Error('User not found');
+    }
+
+    // Generate a new access token
+    const accessToken = jwt.sign(
+      { id: user._id, role: user.role, username: user.username, email: user.email, isVerified: user.isVerified },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    // Send the new access token
+    res.status(200).json({ success: true, accessToken });
+  } catch (error) {
+    res.status(403);
+    throw new Error('Invalid refresh token');
+  }
 });
 
 //   forgot password
@@ -319,31 +354,6 @@ const forgotPassword = asyncHandler(async (req, res) => {
     await transporter.sendMail(mailOptions);
 
     res.status(200).json({ message: "Password reset link sent to your email" });
-});
-
-// refresh Access Token
-const refreshAccessToken = asyncHandler(async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    // console.log(req.cookies['refreshToken'])
-    if (!refreshToken) {
-      res.status(403);
-      throw new Error("No refresh token found");
-    }
-  
-    try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-  
-      const newAccessToken = jwt.sign(
-        { id: decoded.id,role: decoded.role, username:decoded.username, email:decoded.email, isVerified:decoded.isVerified},
-        process.env.JWT_SECRET,
-        { expiresIn: "15m" }
-      );
-  
-      res.status(200).json({ accessToken: newAccessToken });
-    } catch (error) {
-      res.status(403);
-      throw new Error("Invalid or expired refresh token");
-    }
 });
   
 // logout user
