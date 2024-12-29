@@ -60,19 +60,34 @@ const getProductById = asyncHandler(async (req, res) => {
 });
 
 // Update a product
+
 const updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const updatedProduct = await PoultryProduct.findByIdAndUpdate(id, req.body, {
+    // Extract the new image if uploaded
+    const image = req.files?.image?.[0]?.path; // Assuming Cloudinary or similar storage provides the file path
+
+    // Construct the update object
+    const updateFields = { ...req.body };
+
+    if (image) {
+        updateFields.image = image; // Add the new image path to the update
+    }
+
+    // Update the product in the database
+    const updatedProduct = await PoultryProduct.findByIdAndUpdate(id, updateFields, {
         new: true, // Returns the updated document
         runValidators: true, // Ensures validation rules are applied
     });
 
     if (!updatedProduct) {
-        return res.status(404).json({ message: 'Product not found' });
+        return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json({ message: 'Product updated successfully', product: updatedProduct });
+    res.status(200).json({
+        message: "Product updated successfully",
+        product: updatedProduct,
+    });
 });
 
 // Delete a product

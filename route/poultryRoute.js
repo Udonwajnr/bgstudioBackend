@@ -31,7 +31,9 @@ router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 
 // Update a product
-router.put('/:id', updateProduct);
+router.put('/:id',upload.fields([
+    { name: 'image', maxCount: 1 }, // Allow up to 5 photos
+  ]),updateProduct);
 
 // Update sales
 router.put('/:id/sales', updateSales); 
