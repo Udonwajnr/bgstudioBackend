@@ -19,7 +19,7 @@ router.get('/search', searchAndFilterProducts);
 // Create a product
 router.post('/',
     upload.fields([
-        { name: 'photos', maxCount: 5 }, // Allow up to 5 photos
+        { name: 'image', maxCount: 1 }, // Allow up to 5 photos
       ])
     , 
     createProduct);
