@@ -102,7 +102,6 @@ const getBookings = asyncHandler(async (req, res) => {
     res.status(200).json(bookings);
 });
 
-
 const getBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
 

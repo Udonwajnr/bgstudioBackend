@@ -7,7 +7,8 @@ const {
     updateProduct,
     deleteProduct,
     updateSales,
-    searchAndFilterProducts
+    searchAndFilterProducts,
+    deleteMultiplePoultryProducts
 } = require('../controllers/PoultryProductController');
 
  // Search and filter products
@@ -30,5 +31,8 @@ router.put('/:id/sales', updateSales);
 
 // Delete a product
 router.delete('/:id', deleteProduct);
+
+router.post('/delete-multiple-poultry-product', deleteMultiplePoultryProducts);
+
 
 module.exports = router;

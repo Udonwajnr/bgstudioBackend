@@ -134,10 +134,29 @@ const searchAndFilterProducts = asyncHandler(async (req, res) => {
     res.status(200).json(products);
 });
 
+const deleteMultiplePoultryProducts = asyncHandler(async(req,res)=>{
+    const {ids} = req.body;
+    if(!ids || !Array.isArray(ids) || ids.length === 0){
+        return res.status(400).json({ message: 'Invalid or missing IDs' });
+    }
+
+    const result = await PoultryProduct.deleteMany({_id:{$in:ids }});
+    if(result.deletedCount ===0){
+        return res.status(404).json({message:"no Poultry Product found to delete"})
+    }
+    res.status(200).json({
+        message:`${result.deletedCount} Poultry Product (s) deleted successfully`,
+        deletedCount:result.deletedCount
+    })
+
+})
+
 module.exports={createProduct,
     getAllProducts,
     getProductById,
     updateProduct,
     deleteProduct,
     updateSales,
-    searchAndFilterProducts}
+    searchAndFilterProducts,
+    deleteMultiplePoultryProducts
+}
