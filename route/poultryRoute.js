@@ -10,12 +10,19 @@ const {
     searchAndFilterProducts,
     deleteMultiplePoultryProducts
 } = require('../controllers/PoultryProductController');
+const upload = require("../upload/multerConfig")
+
 
  // Search and filter products
 router.get('/search', searchAndFilterProducts);
 
 // Create a product
-router.post('/', createProduct);
+router.post('/',
+    upload.fields([
+        { name: 'photos', maxCount: 5 }, // Allow up to 5 photos
+      ])
+    , 
+    createProduct);
 
 // Get all products
 router.get('/', getAllProducts);

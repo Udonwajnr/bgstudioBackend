@@ -3,26 +3,42 @@ const PoultryProduct = require('../models/Poultry');
 
 // Create a new product
 const createProduct = asyncHandler(async (req, res) => {
-    const { productName, category, price, stock, image } = req.body;
+    // Extract the image from req.files
+    const image = req.files?.image?.[0]?.path; // Assuming Cloudinary or similar storage provides the file path
 
+    // Extract other fields from req.body
+    const { productName, category, price, stock } = req.body;
+
+    // Validate required fields
     if (!image) {
-        return res.status(400).json({ message: 'Image is required' });
+        return res.status(400).json({ message: "Image is required" });
+    }
+    if (!productName || !category || !price || !stock) {
+        return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Create a new product instance
     const product = new PoultryProduct({
         productName,
         category,
         price,
         stock,
-        image,
+        image, // Save the image path
     });
 
-    const savedProduct = await product.save();
-
-    res.status(201).json({
-        message: 'Product created successfully',
-        product: savedProduct,
-    });
+    // Save the product to the database
+    try {
+        const savedProduct = await product.save();
+        res.status(201).json({
+            message: "Product created successfully",
+            product: savedProduct,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to create product",
+            error: error.message,
+        });
+    }
 });
 
 // Get all products

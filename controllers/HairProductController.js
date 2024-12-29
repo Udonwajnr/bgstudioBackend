@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const HairProduct = require('../models/HairProduct');
 const upload = require('../upload/multerConfig');
 // Create a new Hair Product
+
 const createHairProduct = asyncHandler(async (req, res) => {
     try {
       // Extract uploaded file URLs from Multer
@@ -14,8 +15,7 @@ const createHairProduct = asyncHandler(async (req, res) => {
         photos,
         video,
       };
-      
-      console.log(req.files)
+    
       // Automatically calculate discount price if provided
       if (productData.discountPrice && productData.discountPrice >= productData.price) {
         return res.status(400).json({ message: 'Discount price must be less than the original price' });
