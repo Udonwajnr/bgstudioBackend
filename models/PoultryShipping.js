@@ -4,7 +4,7 @@ const poultryShippingSchema = new mongoose.Schema(
   {
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Order', // Reference to the Order model
+      ref: 'PoultryOrder', // Reference to the Order model
       required: true,
     },
     customerName: {
