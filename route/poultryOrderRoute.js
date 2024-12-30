@@ -15,7 +15,7 @@ router.get('/', getAllOrders);
 router.get('/:orderId', getOrderById);
 router.post('/', createOrder);
 router.post('/verify-payment', verifyPayment);
-router.put('/:id', updateOrderStatus);
+router.patch('/:id/status', updateOrderStatus);
 router.delete('/:id', deleteOrder);
 
 module.exports = router;

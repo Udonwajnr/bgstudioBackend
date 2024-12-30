@@ -159,23 +159,23 @@ const getAllOrders = asyncHandler(async (req, res) => {
   });
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  const order = await PoultryOrder.findById(id);
-
-  if (!order) {
-    return res.status(404).json({ message: 'Order not found' });
-  }
-
-  if (!['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status value' });
-  }
-
-  order.status = status;
-  const updatedOrder = await order.save();
-
-  res.status(200).json(updatedOrder);
+ try{
+    const { status } = req.body;
+    const order = await PoultryOrder.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    if (!['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }  
+    res.status(200).json(order);
+ }catch(error){
+  res.status(400).json({error:error.message})
+ }
 });
 
 const deleteOrder = asyncHandler(async (req, res) => {
