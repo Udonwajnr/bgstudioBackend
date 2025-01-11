@@ -67,10 +67,10 @@ const HairProductSchema = new mongoose.Schema(
       // enum: ['curly', 'straight', 'wavy', 'braided'],
     },
     hairLength: {
-      type: String,
+      type: [String],
     },
     hairColor: {
-      type: String,
+      type: [String],
     },
     density: {
       type: String,
