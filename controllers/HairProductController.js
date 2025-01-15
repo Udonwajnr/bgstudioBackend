@@ -15,12 +15,18 @@ const createHairProduct = asyncHandler(async (req, res) => {
         photos,
         video,
       };
-    
+
+      productData.price = Number(productData.price);
+      productData.discountPrice = Number(productData.discountPrice);
+  
+      if (isNaN(productData.price) || isNaN(productData.discountPrice)) {
+        return res.status(400).json({ message: 'Price and discount price must be valid numbers' });
+      }
+  
       // Automatically calculate discount price if provided
       if (productData.discountPrice >= productData.price) {
         return res.status(400).json({ message: 'Discount price must be less than the original price' });
       }
-  
       // Save the new product to the database
       const newProduct = new HairProduct(productData);
       const savedProduct = await newProduct.save();
