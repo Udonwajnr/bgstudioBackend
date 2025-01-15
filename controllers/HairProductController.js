@@ -17,7 +17,7 @@ const createHairProduct = asyncHandler(async (req, res) => {
       };
     
       // Automatically calculate discount price if provided
-      if (productData.discountPrice && productData.discountPrice >= productData.price) {
+      if (productData.discountPrice >= productData.price) {
         return res.status(400).json({ message: 'Discount price must be less than the original price' });
       }
   
