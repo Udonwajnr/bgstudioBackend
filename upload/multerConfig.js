@@ -6,7 +6,7 @@ const cloudinary = require('../config/cloudinary'); // Import your Cloudinary co
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    const allowedImageFormats = ['jpg', 'png', 'jpeg'];
+    const allowedImageFormats = ['jpg', 'png', 'jpeg',"webp"];
     const allowedVideoFormats = ['mp4'];
 
     // Determine the folder and allowed file types based on the file mimetype
