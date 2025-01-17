@@ -5,7 +5,7 @@ const HairProductSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ['wig', 'hairProduct'], // Limiting to specific categories
+      enum: ['wig', 'hair Product','accessories',], // Limiting to specific categories
     },
     name: {
       type: String,

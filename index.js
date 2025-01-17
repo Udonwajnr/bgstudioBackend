@@ -14,7 +14,7 @@ const apiKeyMiddleware = require("./authMiddleware");
 const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = [
-            'http://localhost:3000','https://bgstudio-admin.vercel.app'
+            'http://localhost:3000','https://bgstudio-admin.vercel.app,',"https://bg-salon.vercel.app/"
         ];
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true);
