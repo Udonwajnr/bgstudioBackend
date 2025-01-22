@@ -37,11 +37,12 @@ const createBooking = asyncHandler(async (req, res) => {
         uniqueCode,
     });
 
+    const unicodeLink = `${process.env.CLIENT_URL}/api/salon/cancel/${uniqueCode}`
     if(newBooking.email){
         const bookingDetails = `
             <!DOCTYPE html>
             <html lang="en">
-            <head>
+            {<head>}
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Booking Confirmation - BG Unisex Salon</title>
@@ -71,7 +72,7 @@ const createBooking = asyncHandler(async (req, res) => {
                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
                                     <td align="center">
-                                        <a href="http://localhost:3000/api/salon/cancel/${uniqueCode}" style="display: inline-block; padding: 12px 24px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Cancel Booking</a>
+                                        <a href=${unicodeLink} style="display: inline-block; padding: 12px 24px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Cancel Booking</a>
                                     </td>
                                 </tr>
                             </table>
