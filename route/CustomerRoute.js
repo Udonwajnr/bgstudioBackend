@@ -1,7 +1,7 @@
 // routes/auth.js
 const express = require("express");
 const passport = require("passport");
-
+const {CreateUser,verifyEmail,login,logout,forgotPassword,resendVerificationLink,resetPassword} = require('../controllers/customerController')
 const router = express.Router();
 
 // Google Auth
@@ -31,6 +31,12 @@ router.get(
       res.status(500).send("An error occurred during Facebook authentication.");
     }
   );
-  
+
+router.post('/', CreateUser)
+router.post("/login", login);       // User login
+router.post("/logout", logout);     // Logout user
+router.get("/verify/:token", verifyEmail);                   // Verify email
+router.post("/resend-verification", resendVerificationLink); // Resend verification link
+
 
 module.exports = router;
