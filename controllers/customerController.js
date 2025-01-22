@@ -52,7 +52,7 @@ const CreateUser = asyncHandler(async (req, res) => {
     },
   });
 
-  const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+  const verificationLink = `${process.env.CLIENT_URL}/auth/verify/${verificationToken}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -197,7 +197,7 @@ const login = asyncHandler(async (req, res) => {
   
     const resetToken = crypto.randomBytes(32).toString("hex");
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+    user.resetPasswordExpire = Date.now() + 3600000; // Token expires in 1 hour
     await user.save();
   
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
@@ -296,7 +296,7 @@ const login = asyncHandler(async (req, res) => {
   
     const user = await Customer.findOne({
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }, // Ensure the token has not expired
+      resetPasswordExpire: { $gt: Date.now() }, // Ensure the token has not expired
     });
   
     if (!user) {
@@ -306,7 +306,7 @@ const login = asyncHandler(async (req, res) => {
   
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetPasswordToken = null;
-    user.resetPasswordExpires = null;
+    user.resetPasswordExpire = null;
     await user.save();
   
     res.status(200).json({ message: "Password reset successfully" });
