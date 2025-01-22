@@ -88,7 +88,10 @@ app.use("/api/salon", require("./route/bookingRoute"));
 app.use("/api/poultry", require("./route/poultryRoute"));
 app.use("/api/poultry-order", require("./route/poultryOrderRoute"));
 app.use("/api/poultry-shipping", require("./route/poultryShippingRoutes"));
+
+// customer for the bg salon
 app.use("/auth", require("./route/CustomerRoute"));
+app.use("/api/customer", require("./route/customerProtectedRoute")); // Protected route
 
 // Hair product routes
 app.use("/api/hair", require("./route/hairProductRoute"));

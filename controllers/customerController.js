@@ -137,6 +137,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "Email verified successfully. You can now log in." });
 });
+
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
   
@@ -144,8 +145,8 @@ const login = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("Email and password are required");
     }
-  
-    const user = await Customer.findOne({ email });
+    const normalizedEmail = email.toLowerCase();
+    const user = await Customer.findOne({ email:normalizedEmail });
   
     if (!user) {
       res.status(404);
@@ -311,6 +312,20 @@ const login = asyncHandler(async (req, res) => {
   
     res.status(200).json({ message: "Password reset successfully" });
   });
+
+  const getUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+  
+    // Query the user by _id if id refers to the MongoDB ObjectId
+    const user = await Customer.findById(id);
+  
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+  
+    return res.status(200).json(user);
+  });
+  
   
   module.exports = {
     CreateUser,
@@ -320,4 +335,5 @@ const login = asyncHandler(async (req, res) => {
     forgotPassword,
     resendVerificationLink,
     resetPassword,
+    getUser
   };
