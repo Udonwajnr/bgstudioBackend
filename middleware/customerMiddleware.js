@@ -3,12 +3,17 @@ const asyncHandler = require("express-async-handler");
 const Customer = require("../models/Customer"); // Adjust the path to your Customer model
 
 const protect = asyncHandler(async (req, res, next) => {
+  // Debug Logs
+  console.log("Authorization Header:", req.headers.authorization);
+  console.log("Is Authenticated (Session):", req.isAuthenticated && req.isAuthenticated());
+
+  // Check for Passport session-based authentication
   if (req.isAuthenticated && req.isAuthenticated()) {
-    // If the user is authenticated via Passport session
-    req.user = req.user; // Passport automatically attaches the user to `req.user`
+    console.log("Authenticated via Passport session");
     return next();
   }
 
+  // If no session, fall back to JWT
   let token;
   if (
     req.headers.authorization &&
@@ -25,16 +30,20 @@ const protect = asyncHandler(async (req, res, next) => {
         throw new Error("User not found");
       }
 
+      console.log("Authenticated via JWT token");
       return next(); // Continue to the next middleware or route handler
     } catch (error) {
+      console.error("JWT Verification Error:", error.message);
       res.status(401);
       throw new Error("Not authorized, invalid token");
     }
   }
 
   // If neither session nor JWT is valid
+  console.log("No valid session or token found");
   res.status(401);
   throw new Error("Not authorized, no token or session provided");
 });
+
 
 module.exports = { protect };
