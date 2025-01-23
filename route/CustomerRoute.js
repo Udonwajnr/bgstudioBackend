@@ -10,7 +10,8 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    res.redirect("/dashboard");
+    const user = req.user; // Passport attaches the authenticated user to req.user
+    res.status(200).json(user);
   },
   (err, req, res, next) => {
     console.error("Google Callback Error:", err.message);

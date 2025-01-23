@@ -6,7 +6,7 @@ const Customer = require("../models/Customer");
 require("dotenv").config();
 
 // Serialize and deserialize user
-passport.serializeUser((user, done) => done(null, user.id));
+passport.serializeUser((user, done) => done(null, user._id));
 passport.deserializeUser((id, done) => Customer.findById(id).then(user => done(null, user)));
 
 // Helper function to handle email with a password
