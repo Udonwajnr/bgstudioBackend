@@ -128,7 +128,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
   // Find the user by the verification token
   const user = await Customer.findOne({ verificationToken: token });
 
-  // If user does not exist, return an error
+  // If user does not exist, return a proper error message
   if (!user) {
     return res.status(400).json({ message: "Invalid or expired verification token" });
   }
@@ -138,15 +138,25 @@ const verifyEmail = asyncHandler(async (req, res) => {
     return res.status(200).json({ message: "Email already verified" });
   }
 
-  // Mark the user as verified and clear the token fields
+  // Mark the user as verified
   user.isVerified = true;
-  user.verificationToken = null;
-  user.tokenExpiresAt = null;
+
+  // Save the user with the token still present for 10 minutes
   await user.save();
+
+  // Schedule the token nullification after 10 minutes
+  setTimeout(async () => {
+    const verifiedUser = await Customer.findOne({ _id: user._id });
+    if (verifiedUser && verifiedUser.isVerified) {
+      verifiedUser.verificationToken = null;
+      await verifiedUser.save();
+    }
+  }, 10 * 60 * 1000); // 10 minutes in milliseconds
 
   // Return a success message
   return res.status(200).json({ message: "Email verified successfully. You can now log in." });
 });
+
 
 
 const login = asyncHandler(async (req, res) => {
