@@ -52,7 +52,7 @@ const CreateUser = asyncHandler(async (req, res) => {
     },
   });
 
-  const verificationLink = `${process.env.CLIENT_URL}/verify/${verificationToken}`;
+  const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
