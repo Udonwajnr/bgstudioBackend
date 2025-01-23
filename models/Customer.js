@@ -10,7 +10,6 @@ const customerSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    // required: true,
     unique: true,
   },
   password: {
@@ -32,6 +31,10 @@ const customerSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  tokenExpiresAt: {
+    type: Date,
+    required: false,
+  },
   resetPasswordToken: {
     type: String,
     required: false,
@@ -44,6 +47,9 @@ const customerSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// TTL Index for automatic token expiration
+customerSchema.index({ tokenExpiresAt: 1 }, { expireAfterSeconds: 0 });
 
 // Pre-save middleware for password hashing
 customerSchema.pre("save", async function (next) {
