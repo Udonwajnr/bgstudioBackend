@@ -125,18 +125,28 @@ const CreateUser = asyncHandler(async (req, res) => {
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.params;
 
+  // Find the user by the verification token
   const user = await Customer.findOne({ verificationToken: token });
+  
+  // If user does not exist, return a proper error message
   if (!user) {
-    res.status(400);
-    throw new Error("Invalid or expired verification token");
+    return res.status(400).json({ message: "Invalid or expired verification token" });
   }
 
-  user.isVerified = true; // Mark user as verified
-  user.verificationToken = null; // Clear the token
+  // Check if the email is already verified
+  if (user.isVerified) {
+    return res.status(200).json({ message: "Email already verified" });
+  }
+
+  // Mark the user as verified
+  user.isVerified = true;
+  user.verificationToken = null;
   await user.save();
 
-  res.status(200).json({ message: "Email verified successfully. You can now log in." });
+  // Return a success message
+  return res.status(200).json({ message: "Email verified successfully. You can now log in." });
 });
+
 
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
