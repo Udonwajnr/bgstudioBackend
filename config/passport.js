@@ -6,8 +6,17 @@ const Customer = require("../models/Customer");
 require("dotenv").config();
 
 // Serialize and deserialize user
-passport.serializeUser((user, done) => done(null, user._id));
-passport.deserializeUser((id, done) => Customer.findById(id).then(user => done(null, user)));
+passport.serializeUser((user, done) => {
+  console.log("Serializing user:", user); // Log the user
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  console.log("hello")
+  console.log("Deserializing user with id:",user); // Log the id
+  done(null,user)
+});
+
 
 // Helper function to handle email with a password
 async function handleEmailConflict(email, provider, done) {
@@ -29,13 +38,14 @@ async function handleEmailConflict(email, provider, done) {
   return null;
 }
 
+
 // Google Strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://bgstudiobackend-1.onrender.com/auth/google/callback",
+      callbackURL: "http://localhost:8000/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -55,7 +65,6 @@ passport.use(
             provider: "google",
           });
         }
-
         return done(null, user);
       } catch (err) {
         console.error("Google OAuth Error:", err); // Log any errors

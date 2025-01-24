@@ -157,8 +157,6 @@ const verifyEmail = asyncHandler(async (req, res) => {
   return res.status(200).json({ message: "Email verified successfully. You can now log in." });
 });
 
-
-
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
   

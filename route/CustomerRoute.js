@@ -10,8 +10,26 @@ const {
   resetPassword,
   getUser,
 } = require("../controllers/customerController");
-
+const jwt = require("jsonwebtoken");
 const router = express.Router();
+
+
+
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET || "accessSecretKey",
+    { expiresIn: "1h" } // Access token valid for 1 hour
+  );
+};
+
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.REFRESH_TOKEN_SECRET || "refreshSecretKey",
+    { expiresIn: "7d" } // Refresh token valid for 7 days
+  );
+};
 
 // Google Auth
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
@@ -20,14 +38,34 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    const user = req.user; // Passport attaches the authenticated user to req.user
-    res.status(200).json(user);
-  },
-  (err, req, res, next) => {
-    console.error("Google Callback Error:", err.message);
-    res.status(400).send({ error: err.message });
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "Authentication failed" });
+      }
+      // Generate tokens
+      const accessToken = generateAccessToken(req.user);
+      const refreshToken = generateRefreshToken(req.user);
+
+      // Store refresh token in HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      });
+
+      // Send access token to the client
+      res.status(200).json({
+        message: "Authentication successful",
+        accessToken,
+        user: req.user,
+      });
+    } catch (error) {
+      console.error("Error generating tokens:", error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 );
+
 
 // Facebook Auth
 router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));

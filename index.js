@@ -32,7 +32,7 @@ const corsOptions = {
 
 // Application setup
 const app = express();
-const port = 3000;
+const port = 8000;
 
 // Middleware
 app.use(cookieParser());
@@ -44,19 +44,25 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI, // MongoDB connection string
       ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days
     }),
     cookie: {
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      // secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
     },
   })
 );
+
+
+app.use((req, res, next) => {
+  console.log('Session data:', req.session); // Log session data on every request
+  next();
+});
 
 // Passport middleware
 app.use(passport.initialize());
@@ -70,6 +76,23 @@ const sendResponse = (res, statusCode, message, data = null) => {
     data,
   });
 };
+
+app.get('/logout', (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      console.error('Error logging out:', err);
+      return next(err);
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return next(err);
+      }
+      res.clearCookie('connect.sid'); // Clear the session cookie
+      res.redirect('/'); // Redirect to the home or login page
+    });
+  });
+});
 
 // Root route
 app.get("/", (req, res) => {
