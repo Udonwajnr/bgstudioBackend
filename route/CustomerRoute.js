@@ -13,8 +13,6 @@ const {
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
-
-
 const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user.id, email: user.email },
@@ -42,6 +40,7 @@ router.get(
       if (!req.user) {
         return res.status(401).json({ error: "Authentication failed" });
       }
+
       // Generate tokens
       const accessToken = generateAccessToken(req.user);
       const refreshToken = generateRefreshToken(req.user);
@@ -53,12 +52,13 @@ router.get(
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       });
 
-      // Send access token to the client
-      res.status(200).json({
-        message: "Authentication successful",
-        accessToken,
-        user: req.user,
-      });
+      // Respond with client-side script to signal parent window and close the popup
+      res.send(`
+        <script>
+          window.opener.postMessage('success', '*'); // Signal to parent window
+          window.close(); // Close the popup
+        </script>
+      `);
     } catch (error) {
       console.error("Error generating tokens:", error.message);
       res.status(500).json({ error: "Internal server error" });

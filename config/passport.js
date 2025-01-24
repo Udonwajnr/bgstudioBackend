@@ -63,6 +63,7 @@ passport.use(
             fullName: name,
             email,
             provider: "google",
+            isVerified:true
           });
         }
         return done(null, user);
