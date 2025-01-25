@@ -74,13 +74,42 @@ router.get(
   "/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/login" }),
   (req, res) => {
-    res.redirect("/dashboard");
-  },
-  (err, req, res, next) => {
-    console.error("Facebook Callback Error:", err.message);
-    res.status(400).send({ error: err.message });
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "Authentication failed" });
+      }
+
+      // Generate tokens
+      const accessToken = generateAccessToken(req.user);
+      const refreshToken = generateRefreshToken(req.user);
+
+      // Store refresh token in an HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      // Respond with client-side script to signal parent window and close the popup
+      res.send(`
+        <script>
+          window.opener.postMessage('success', '*'); // Signal to parent window
+          window.close(); // Close the popup
+        </script>
+      `);
+    } catch (error) {
+      console.error("Error generating tokens:", error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 );
+
+// Custom error-handling middleware for the route
+router.use((err, req, res, next) => {
+  console.error("Facebook Callback Error:", err.message);
+  res.status(400).json({ error: err.message });
+});
+
 
 // Get Authenticated User (Universal for Google, Facebook, or other login methods)
 router.get("/me", (req, res) => {
