@@ -40,7 +40,7 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.set('trust proxy',1)
 // Session middleware
 app.use(
   session({
@@ -49,6 +49,7 @@ app.use(
     saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI, // MongoDB connection string
+      collectionName:'sessions',
       ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days
     }),
     cookie: {
