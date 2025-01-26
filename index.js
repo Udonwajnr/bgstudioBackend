@@ -9,6 +9,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("./config/passport");
 const MongoStore = require("connect-mongo");
+const cookieSession = require("cookie-session")
 
 // Middleware for API key validation (commented out for now)
 const apiKeyMiddleware = require("./authMiddleware");
@@ -43,7 +44,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Session middleware
 app.use(
-  session({
+  cookieSession({
     secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
     resave: true,
     saveUninitialized: true,
