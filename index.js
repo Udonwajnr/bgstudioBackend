@@ -52,7 +52,7 @@ app.use(
       ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days
     }),
     cookie: {
-      // secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      secure: true, // Use secure cookies in production
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
     },
