@@ -54,9 +54,9 @@ app.use(
     }),
     cookie: {
       secure: true, // Use secure cookies in production
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
-      sameSite: "none" 
+      sameSite: "None" 
     },
   })
 );
