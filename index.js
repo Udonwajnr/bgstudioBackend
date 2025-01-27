@@ -53,6 +53,7 @@ app.use(
       ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days
     }),
     cookie: {
+      domain:"http://localhost:3000",
       secure: true, // Use secure cookies in production
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
