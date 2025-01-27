@@ -13,28 +13,28 @@ const {
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
-// const generateAccessToken = (user) => {
-//   return jwt.sign(
-//     { id: user.id, email: user.email },
-//     process.env.JWT_SECRET || "accessSecretKey",
-//     { expiresIn: "1h" } // Access token valid for 1 hour
-//   );
-// };
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET || "accessSecretKey",
+    { expiresIn: "1h" } // Access token valid for 1 hour
+  );
+};
 
-// const generateRefreshToken = (user) => {
-//   return jwt.sign(
-//     { id: user.id, email: user.email },
-//     process.env.REFRESH_TOKEN_SECRET || "refreshSecretKey",
-//     { expiresIn: "7d" } // Refresh token valid for 7 days
-//   );
-// };
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.REFRESH_TOKEN_SECRET || "refreshSecretKey",
+    { expiresIn: "7d" } // Refresh token valid for 7 days
+  );
+};
 
 // Google Auth
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"], }));
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login",session:true }),
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
     try {
       if (!req.user) {
@@ -67,6 +67,19 @@ router.get(
       if (!req.user) {
         return res.status(401).json({ error: "Authentication failed" });
       }
+
+      // Generate tokens
+      const accessToken = generateAccessToken(req.user);
+      const refreshToken = generateRefreshToken(req.user);
+
+      // Store refresh token in an HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      // Respond with client-side script to signal parent window and close the popup
       res.send(`
         <script>
           window.opener.postMessage('success', '*'); // Signal to parent window
