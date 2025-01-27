@@ -55,7 +55,7 @@ app.use(
     }),
     cookie: {
       secure: true, // Use secure cookies in production
-      httpOnly: false,
+      httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
       sameSite: "None" 
     },
