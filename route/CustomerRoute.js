@@ -86,6 +86,8 @@ router.get(
           window.close(); // Close the popup
         </script>
       `);
+
+      res.json({auth: req.isAuthenticated()})
     } catch (error) {
       console.error("Error generating tokens:", error.message);
       res.status(500).json({ error: "Internal server error" });
