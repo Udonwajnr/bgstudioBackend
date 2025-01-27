@@ -46,7 +46,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI, // MongoDB connection string
       collectionName:'sessions',
