@@ -42,6 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('trust proxy',1)
 // Session middleware
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
@@ -61,10 +62,10 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  console.log('Session data:', req.session); // Log session data on every request
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('Session data:', req.session); // Log session data on every request
+//   next();
+// });
 
 // Passport middleware
 app.use(passport.initialize());
