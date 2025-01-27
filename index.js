@@ -40,7 +40,7 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.set('trust proxy',1)
+app.set('trust proxy')
 // Session middleware
 app.use(
   session({
@@ -56,7 +56,7 @@ app.use(
       secure: true, // Use secure cookies in production
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
-    sameSite: "none" 
+      sameSite: "none" 
     },
   })
 );
