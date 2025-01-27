@@ -30,11 +30,11 @@ const generateRefreshToken = (user) => {
 };
 
 // Google Auth
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"],accessType: 'offline' }));
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", { failureRedirect: "/login",session:true }),
   (req, res) => {
     try {
       if (!req.user) {
