@@ -46,15 +46,15 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI, // MongoDB connection string
       collectionName:'sessions',
       ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days
     }),
     cookie: {
-      secure: false, // Use secure cookies in production
-      httpOnly: false,
+      secure: true, // Use secure cookies in production
+      httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
       sameSite: "none" 
     },
