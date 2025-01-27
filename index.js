@@ -45,7 +45,7 @@ app.set('trust proxy',1)
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
-    resave: false,
+    resave: true,
     saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI, // MongoDB connection string
