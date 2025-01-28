@@ -70,7 +70,7 @@ app.use((req, res, next) => {
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(passport.authenticate('session'));
 // Utility function for structured responses
 const sendResponse = (res, statusCode, message, data = null) => {
   return res.status(statusCode).json({
