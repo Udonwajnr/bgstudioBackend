@@ -1,20 +1,20 @@
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const GoogleStrategy = require("passport-google-oidc");
 const FacebookStrategy = require("passport-facebook").Strategy;
 const Customer = require("../models/Customer");
 
 require("dotenv").config();
 
-// Serialize and deserialize user
-passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user); // Log the user
-  done(null, user);
+passport.serializeUser(function(user, cb) {
+  process.nextTick(function() {
+    cb(null, { user });
+  });
 });
 
-passport.deserializeUser((user, done) => {
-  console.log("hello")
-  console.log("Deserializing user with id:",user); // Log the id
-  done(null,user)
+passport.deserializeUser(function(user, cb) {
+  process.nextTick(function() {
+    return cb(null, user);
+  });
 });
 
 
@@ -45,7 +45,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `https://bgstudiobackend-1.onrender.com/auth/google/callback`,
+      callbackURL: `http://localhost:8000/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
