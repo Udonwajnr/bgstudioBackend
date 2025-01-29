@@ -18,7 +18,7 @@ const customerSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required:true
+    // required:true
   },
   provider: {
     type: String,
@@ -44,6 +44,7 @@ const customerSchema = new mongoose.Schema({
   resetPasswordExpire: {
     type: Date,
   },
+  refreshToken: { type: String },
   image: {
     type: String
 },

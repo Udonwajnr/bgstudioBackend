@@ -196,9 +196,6 @@ const login = asyncHandler(async (req, res) => {
     });
   });
   // Logout function
-  const logout = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: "Logout successful" });
-  });
   // Forgot password function
   const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -345,46 +342,138 @@ const login = asyncHandler(async (req, res) => {
     return res.status(200).json(user);
   });
   
-  const googleAuth = async (req, res, next) => {
+const googleAuth = async (req, res, next) => {
     const code = req.query.code;
-    console.log(code)
+    console.log(code);
+    
     try {
         const googleRes = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(googleRes.tokens);
+        
         const userRes = await axios.get(
             `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
         );
+
         const { email, name, picture } = userRes.data;
-        // console.log(userRes);
+
         let user = await Customer.findOne({ email });
 
         if (!user) {
             user = await Customer.create({
-              fullName: name,
-              email,
-              provider: "google",
-              isVerified:true,
-              image: picture,
+                fullName: name,
+                email,
+                provider: "google",
+                isVerified: true,
+                image: picture,
             });
         }
+
         const { _id } = user;
-        const token = jwt.sign({ _id, email },
-            process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_TIMEOUT,
+
+        // Generate Access and Refresh Tokens
+        const accessToken = jwt.sign({ _id, email }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_TIMEOUT || "15m",
         });
+
+        const refreshToken = jwt.sign({ _id, email }, process.env.REFRESH_SECRET, {
+            expiresIn: "7d",
+        });
+
+        // Store Refresh Token in Database
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        // Set tokens in httpOnly cookies
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
         res.status(200).json({
-            message: 'success',
-            token,
+            message: "Success",
             user,
         });
     } catch (err) {
+        console.error(err);
         res.status(500).json({
             message: "Internal Server Error",
-            err:err
-        })
-        console.log(err)
+            error: err.message,
+        });
     }
 };
+
+const logout = async (req, res) => {
+  try {
+      const user = await Customer.findById(req.user._id);
+      if (user3) {
+          user.refreshToken = null; // Remove refresh token
+          await user.save();
+      }
+
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+      res.status(500).json({ message: "Error logging out" });
+  }
+};
+
+const refreshToken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        jwt.verify(refreshToken, process.env.REFRESH_SECRET, async (err, decoded) => {
+            if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+            const user = await Customer.findById(decoded._id);
+            if (!user || user.refreshToken !== refreshToken) {
+                return res.status(403).json({ message: "Invalid refresh token" });
+            }
+
+            // Generate new tokens
+            const accessToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "15m" });
+            const newRefreshToken = jwt.sign({ _id: user._id, email: user.email }, process.env.REFRESH_SECRET, { expiresIn: "7d" });
+
+            // Update refresh token in database
+            user.refreshToken = newRefreshToken;
+            await user.save();
+
+            // Set new cookies
+            res.cookie("refreshToken", newRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "Strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "Strict",
+                maxAge: 15 * 60 * 1000,
+            });
+
+            res.status(200).json({ message: "Token refreshed", accessToken });
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+};
+
 
   module.exports = {
     CreateUser,
@@ -395,5 +484,7 @@ const login = asyncHandler(async (req, res) => {
     resendVerificationLink,
     resetPassword,
     getUser,
-    googleAuth
+    googleAuth,
+    logout,
+    refreshToken
   };
