@@ -72,9 +72,9 @@ app.get('/logout', (req, res, next) => {
 });
 
 // Root route
-app.get("/", (req, res) => {
-  sendResponse(res, 200, "Hello World! This is a success message");
-});
+// app.get("/", (req, res) => {
+//   sendResponse(res, 200, "Hello World! This is a success message");
+// });
 
 // Routes
 // Authentication routes
