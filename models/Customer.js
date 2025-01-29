@@ -14,9 +14,11 @@ const customerSchema = new mongoose.Schema({
   },
   password: {
     type: String, // Optional for OAuth users
+    require:true
   },
   phoneNumber: {
     type: String,
+    required:true
   },
   provider: {
     type: String,
@@ -42,6 +44,9 @@ const customerSchema = new mongoose.Schema({
   resetPasswordExpire: {
     type: Date,
   },
+  image: {
+    type: String
+},
   createdAt: {
     type: Date,
     default: Date.now,

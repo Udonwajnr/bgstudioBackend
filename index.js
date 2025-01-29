@@ -40,45 +40,19 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.set('trust proxy',1)
+// app.set('trust proxy',1)
 // Session middleware
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "supersecret", // Replace with strong secret
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI, // MongoDB connection string
-      collectionName:'sessions',
-      ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days
-    }),
-    cookie: {
-      secure: true, // Use secure cookies in production
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration: 7 days
-      sameSite: "None" 
-    },
-  })
-);
 
-app.use((req, res, next) => {
-  console.log('Session data:', req.session); // Log session data on every request
-  next();
-});
 
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(passport.authenticate('session'));
-// Utility function for structured responses
-const sendResponse = (res, statusCode, message, data = null) => {
-  return res.status(statusCode).json({
-    success: statusCode >= 200 && statusCode < 300,
-    message,
-    data,
-  });
-};
+// // Utility function for structured responses
+// const sendResponse = (res, statusCode, message, data = null) => {
+//   return res.status(statusCode).json({
+//     success: statusCode >= 200 && statusCode < 300,
+//     message,
+//     data,
+//   });
+// };
 
 app.get('/logout', (req, res, next) => {
   req.logout((err) => {
@@ -116,7 +90,7 @@ app.use("/api/poultry-order", require("./route/poultryOrderRoute"));
 app.use("/api/poultry-shipping", require("./route/poultryShippingRoutes"));
 
 // customer for the bg salon
-app.use("/auth", require("./route/CustomerRoute"));
+app.use("/auth/customer", require("./route/CustomerRoute"));
 app.use("/api/customer", require("./route/customerProtectedRoute")); // Protected route
 
 // Hair product routes

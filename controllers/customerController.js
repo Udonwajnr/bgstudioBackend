@@ -4,6 +4,8 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Customer = require("../models/Customer"); // Adjust the path based on your project structure
+const axios = require('axios');
+const { oauth2Client } = require('../utils/googleClient');
 
 
 const CreateUser = asyncHandler(async (req, res) => {
@@ -193,12 +195,10 @@ const login = asyncHandler(async (req, res) => {
       token,
     });
   });
-  
   // Logout function
   const logout = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "Logout successful" });
   });
-  
   // Forgot password function
   const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -345,7 +345,47 @@ const login = asyncHandler(async (req, res) => {
     return res.status(200).json(user);
   });
   
-  
+  const googleAuth = async (req, res, next) => {
+    const code = req.query.code;
+    console.log(code)
+    try {
+        const googleRes = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(googleRes.tokens);
+        const userRes = await axios.get(
+            `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+        );
+        const { email, name, picture } = userRes.data;
+        // console.log(userRes);
+        let user = await Customer.findOne({ email });
+
+        if (!user) {
+            user = await Customer.create({
+              fullName: name,
+              email,
+              provider: "google",
+              isVerified:true,
+              image: picture,
+            });
+        }
+        const { _id } = user;
+        const token = jwt.sign({ _id, email },
+            process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_TIMEOUT,
+        });
+        res.status(200).json({
+            message: 'success',
+            token,
+            user,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Internal Server Error",
+            err:err
+        })
+        console.log(err)
+    }
+};
+
   module.exports = {
     CreateUser,
     verifyEmail,
@@ -354,5 +394,6 @@ const login = asyncHandler(async (req, res) => {
     forgotPassword,
     resendVerificationLink,
     resetPassword,
-    getUser
+    getUser,
+    googleAuth
   };

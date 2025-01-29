@@ -11,11 +11,16 @@ passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser((user, done) => {
-  console.log("hello")
-  console.log("Deserializing user with id:",user); // Log the id
-  done(null,user)
+passport.deserializeUser(async (id, done) => {
+  console.log("Deserializing user with id:", id); // Log user ID
+  try {
+    const user = await Customer.findById(id); // Fetch user from DB
+    done(null, user); // Attach user object to `req.user`
+  } catch (err) {
+    done(err, null);
+  }
 });
+
 
 
 // Helper function to handle email with a password
@@ -45,7 +50,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `https://bgstudiobackend-1.onrender.com/auth/google/callback`,
+      callbackURL: `http://localhost:8000/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
