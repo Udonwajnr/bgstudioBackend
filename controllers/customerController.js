@@ -188,8 +188,8 @@ const login = asyncHandler(async (req, res) => {
   }
 
   // TESTING: Set short expiration times
-  const accessToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1m" }); // 1 minute
-  const refreshToken = jwt.sign({ _id: user._id, email: user.email }, process.env.REFRESH_SECRET, { expiresIn: "2m" }); // 2 minutes
+  const accessToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "15m" }); // 15 minute
+  const refreshToken = jwt.sign({ _id: user._id, email: user.email }, process.env.REFRESH_SECRET, { expiresIn: "7d" }); //7days
 
   // Store refresh token in database
   user.refreshToken = refreshToken;
@@ -200,14 +200,14 @@ const login = asyncHandler(async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 1 * 60 * 1000, // 1 minute
+      maxAge: 15 * 60 * 1000, // 1 minute
   });
 
   res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 2 * 60 * 1000, // 2 minutes
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 2 minutes
   });
 
   res.status(200).json({
@@ -215,7 +215,6 @@ const login = asyncHandler(async (req, res) => {
       accessToken,
   });
 });
-
   // Logout function
   // Forgot password function
   const forgotPassword = asyncHandler(async (req, res) => {
@@ -467,7 +466,6 @@ const refreshToken = async (req, res) => {
                 sameSite: "Strict",
                 maxAge: 15 * 60 * 1000,
             });
-
             res.status(200).json({ message: "Token refreshed", accessToken });
         });
 
