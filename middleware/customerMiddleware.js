@@ -10,11 +10,11 @@ const protect = asyncHandler(async (req, res, next) => {
       // Extract the token
       token = req.headers.authorization.split(" ")[1];
 
-      console.log(token)
+      // console.log(token)
       // Verify JWT
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('Decoded token:', decoded); // Debug log (remove in production)
-        console.log('Decoded id', decoded._id); // Debug log (remove in production)
+        // console.log('Decoded token:', decoded); // Debug log (remove in production)
+        // console.log('Decoded id', decoded._id); // Debug log (remove in production)
 
       // Find user in DB (excluding password)
       req.user = await Customer.findById(decoded._id).select("-password");

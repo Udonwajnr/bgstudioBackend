@@ -344,8 +344,7 @@ const login = asyncHandler(async (req, res) => {
   
 const googleAuth = async (req, res, next) => {
     const code = req.query.code;
-    console.log(code);
-    
+    console.log(code); 
     try {
         const googleRes = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(googleRes.tokens);
