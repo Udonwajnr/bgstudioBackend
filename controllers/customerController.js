@@ -200,14 +200,14 @@ const login = asyncHandler(async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 15 * 60 * 1000, // 1 minute
+      maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
   res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 2 minutes
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7days
   });
 
   res.status(200).json({
@@ -432,6 +432,7 @@ const googleAuth = async (req, res, next) => {
 const refreshToken = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
+        con
         if (!refreshToken) {
             return res.status(401).json({ message: "Unauthorized" });
         }
