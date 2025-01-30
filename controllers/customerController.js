@@ -217,150 +217,150 @@ const login = asyncHandler(async (req, res) => {
 });
   // Logout function
   // Forgot password function
-  const forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-  
-    if (!email) {
-      res.status(400);
-      throw new Error("Email is required");
-    }
-  
-    const user = await Customer.findOne({ email });
-  
-    if (!user) {
-      res.status(404);
-      throw new Error("User not found");
-    }
-  
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 3600000; // Token expires in 1 hour
-    await user.save();
-  
-    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-  
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-  
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: "Password Reset Request",
-      html: `<p>Please click <a href='${resetLink}'>here</a> to reset your password. This link will expire in 1 hour.</p>`
-    };
-  
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.error("Error sending email:", err);
-        res.status(500).json({ msg: "Error sending password reset email" });
-        return;
-      }
-      console.log("Password reset email sent:", info.response);
-      res.status(200).json({
-        message: "Password reset email sent successfully. Please check your email.",
-      });
-    });
-  });
-  
-  // Resend verification link function
-  const resendVerificationLink = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-  
-    if (!email) {
-      res.status(400);
-      throw new Error("Email is required");
-    }
-  
-    const user = await Customer.findOne({ email });
-  
-    if (!user) {
-      res.status(404);
-      throw new Error("User not found");
-    }
-  
-    if (user.isVerified) {
-      res.status(400);
-      throw new Error("User is already verified");
-    }
-  
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    user.verificationToken = verificationToken;
-    await user.save();
-  
-    const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-  
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-  
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: "Resend Email Verification",
-      html: `<p>Please click <a href='${verificationLink}'>here</a> to verify your email.</p>`
-    };
-  
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.error("Error sending email:", err);
-        res.status(500).json({ msg: "Error resending verification email" });
-        return;
-      }
-      console.log("Verification email resent:", info.response);
-      res.status(200).json({
-        message: "Verification email resent successfully. Please check your email.",
-      });
-    });
-  });
-  
-  // Reset password function
-  const resetPassword = asyncHandler(async (req, res) => {
-    const { token, newPassword } = req.body;
-  
-    if (!token || !newPassword) {
-      res.status(400);
-      throw new Error("Token and new password are required");
-    }
-  
-    const user = await Customer.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpire: { $gt: Date.now() }, // Ensure the token has not expired
-    });
-  
-    if (!user) {
-      res.status(400);
-      throw new Error("Invalid or expired reset token");
-    }
-  
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.resetPasswordToken = null;
-    user.resetPasswordExpire = null;
-    await user.save();
-  
-    res.status(200).json({ message: "Password reset successfully" });
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error("Email is required");
+  }
+
+  const user = await Customer.findOne({ email });
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpire = Date.now() + 3600000; // Token expires in 1 hour
+  await user.save();
+
+  const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
   });
 
-  const getUser = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-  
-    // Query the user by _id if id refers to the MongoDB ObjectId
-    const user = await Customer.findById(id);
-  
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: user.email,
+    subject: "Password Reset Request",
+    html: `<p>Please click <a href='${resetLink}'>here</a> to reset your password. This link will expire in 1 hour.</p>`
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.error("Error sending email:", err);
+      res.status(500).json({ msg: "Error sending password reset email" });
+      return;
     }
-  
-    return res.status(200).json(user);
+    console.log("Password reset email sent:", info.response);
+    res.status(200).json({
+      message: "Password reset email sent successfully. Please check your email.",
+    });
   });
+});
+
+// Resend verification link function
+const resendVerificationLink = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error("Email is required");
+  }
+
+  const user = await Customer.findOne({ email });
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (user.isVerified) {
+    res.status(400);
+    throw new Error("User is already verified");
+  }
+
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+  user.verificationToken = verificationToken;
+  await user.save();
+
+  const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: user.email,
+    subject: "Resend Email Verification",
+    html: `<p>Please click <a href='${verificationLink}'>here</a> to verify your email.</p>`
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.error("Error sending email:", err);
+      res.status(500).json({ msg: "Error resending verification email" });
+      return;
+    }
+    console.log("Verification email resent:", info.response);
+    res.status(200).json({
+      message: "Verification email resent successfully. Please check your email.",
+    });
+  });
+});
+
+// Reset password function
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    res.status(400);
+    throw new Error("Token and new password are required");
+  }
+
+  const user = await Customer.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpire: { $gt: Date.now() }, // Ensure the token has not expired
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error("Invalid or expired reset token");
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetPasswordToken = null;
+  user.resetPasswordExpire = null;
+  await user.save();
+
+  res.status(200).json({ message: "Password reset successfully" });
+});
+
+const getUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Query the user by _id if id refers to the MongoDB ObjectId
+  const user = await Customer.findById(id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json(user);
+});
   
 const googleAuth = async (req, res, next) => {
     const code = req.query.code;
