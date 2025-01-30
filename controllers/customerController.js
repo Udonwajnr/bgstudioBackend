@@ -160,41 +160,62 @@ const verifyEmail = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-  
-    if (!email || !password) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
       res.status(400);
       throw new Error("Email and password are required");
-    }
-    const normalizedEmail = email.toLowerCase();
-    const user = await Customer.findOne({ email:normalizedEmail });
-  
-    if (!user) {
+  }
+
+  const normalizedEmail = email.toLowerCase();
+  const user = await Customer.findOne({ email: normalizedEmail });
+
+  if (!user) {
       res.status(404);
       throw new Error("User not found");
-    }
-  
-    if (!user.isVerified) {
+  }
+
+  if (!user.isVerified) {
       res.status(400);
       throw new Error("Please verify your email before logging in");
-    }
-  
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-  
-    if (!isPasswordMatch) {
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatch) {
       res.status(401);
       throw new Error("Invalid credentials");
-    }
-  
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-  
-    res.status(200).json({
-      message: "Login successful",
-      token,
-    });
+  }
+
+  // TESTING: Set short expiration times
+  const accessToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1m" }); // 1 minute
+  const refreshToken = jwt.sign({ _id: user._id, email: user.email }, process.env.REFRESH_SECRET, { expiresIn: "2m" }); // 2 minutes
+
+  // Store refresh token in database
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  // Set cookies
+  res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 1 * 60 * 1000, // 1 minute
   });
+
+  res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 2 * 60 * 1000, // 2 minutes
+  });
+
+  res.status(200).json({
+      message: "Login successful",
+      accessToken,
+  });
+});
+
   // Logout function
   // Forgot password function
   const forgotPassword = asyncHandler(async (req, res) => {
@@ -344,7 +365,6 @@ const login = asyncHandler(async (req, res) => {
   
 const googleAuth = async (req, res, next) => {
     const code = req.query.code;
-    console.log(code); 
     try {
         const googleRes = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(googleRes.tokens);
@@ -410,23 +430,6 @@ const googleAuth = async (req, res, next) => {
     }
 };
 
-const logout = async (req, res) => {
-  try {
-      const user = await Customer.findById(req.user._id);
-      if (user3) {
-          user.refreshToken = null; // Remove refresh token
-          await user.save();
-      }
-
-      res.clearCookie("accessToken");
-      res.clearCookie("refreshToken");
-
-      res.status(200).json({ message: "Logged out successfully" });
-  } catch (err) {
-      res.status(500).json({ message: "Error logging out" });
-  }
-};
-
 const refreshToken = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -472,6 +475,29 @@ const refreshToken = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
 };
+const logout = async (req, res) => {
+  try {
+      if (!req.user) {
+          return res.status(400).json({ message: "No user logged in" });
+      }
+
+      const user = await Customer.findById(req.user._id);
+      if (user) {
+          user.refreshToken = null; // Remove refresh token
+          await user.save();
+      }
+
+      // Clear cookies
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      // Send the success response once
+      return res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+      return res.status(500).json({ message: "Error logging out", error: err.message });
+  }
+};
+
 
 
   module.exports = {

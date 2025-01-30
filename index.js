@@ -103,12 +103,6 @@ app.use("/api/hair-shipping", require("./route/hairShippingRoutes"));
 // app.use("/api/hair-payments", require("./route/hairPaymentRoutes"));
 // app.use("/api/poultry-payments", require("./route/poultryPaymentRoutes"));
 
-// Error logging middleware (optional)
-app.use((err, req, res, next) => {
-  console.error("Global Error:", err.stack || err.message); // Log errors globally
-  res.status(500).send("Something went wrong!");
-});
-
 // Database connection and server startup
 connectDb();
 app.listen(port, () => {
