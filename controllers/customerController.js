@@ -444,7 +444,7 @@ const refreshToken = async (req, res) => {
             if (!user || user.refreshToken !== refreshToken) {
                 return res.status(403).json({ message: "Invalid refresh token" });
             }
-
+            console.log(user)
             // Generate new tokens
             const accessToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "15m" });
             const newRefreshToken = jwt.sign({ _id: user._id, email: user.email }, process.env.REFRESH_SECRET, { expiresIn: "7d" });
