@@ -432,7 +432,7 @@ const googleAuth = async (req, res, next) => {
 const refreshToken = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
-        con
+        console.log(refreshToken)
         if (!refreshToken) {
             return res.status(401).json({ message: "Unauthorized" });
         }
