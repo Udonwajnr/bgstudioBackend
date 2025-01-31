@@ -71,6 +71,13 @@ const HairOrderSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+
+    transactionReference:{
+      type: String,
+      unique: true,
+      sparse: true,
+    }
+
   },
   {
     timestamps: true, // Automatically add createdAt and updatedAt fields

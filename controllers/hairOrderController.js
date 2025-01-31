@@ -2,11 +2,11 @@ const HairOrder = require('../models/HairOrder');
 const HairProduct = require('../models/HairProduct');
 const axios = require('axios');
 const asyncHandler = require('express-async-handler');
+const crypto = require('crypto');  // Importing crypto to generate a random string
 
 const FLUTTERWAVE_SECRET_KEY = process.env.FLUTTERWAVE_SECRET_KEY;
 const FLUTTERWAVE_BASE_URL = 'https://api.flutterwave.com/v3';
 
-console.log(FLUTTERWAVE_SECRET_KEY)
 // Create a New Order
 const createHairOrder = asyncHandler(async (req, res) => {
   const { customer, email, phone, items, shippingPrice } = req.body;
@@ -17,7 +17,6 @@ const createHairOrder = asyncHandler(async (req, res) => {
 
   let total = 0;
   for (const item of items) {
-    
     const product = await HairProduct.findById(item._id);
 
     if (!product) {
@@ -38,8 +37,12 @@ const createHairOrder = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Generate a unique transaction reference
+    const randomString = crypto.randomBytes(6).toString('hex');  // Generate a random string of 12 characters (6 bytes)
+    const tx_ref = `HAIR-ORD-${Date.now()}-${randomString}`;  // Combine timestamp and random string to make it unique
+
     const paymentData = {
-      tx_ref: `HAIR-ORD-${Date.now()}`,
+      tx_ref,  // Use the unique tx_ref here
       amount: total,
       currency: 'NGN',
       redirect_url: `${process.env.FRONTEND_URL}/payment-success`,
@@ -56,10 +59,16 @@ const createHairOrder = asyncHandler(async (req, res) => {
         customer,
         email,
         phone,
-        items: items.map((item) => ({ productId: item.productId, name: item.name, quantity: item.quantity, price: item.price })),
+        items: items.map((item) => ({
+          productId: item._id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
         total,
         paymentStatus: 'Pending',
-        flutterwaveTransactionId: response.data.data.id,
+        flutterwaveTransactionId: tx_ref,  // Store the transaction ID from Flutterwave
+        // transactionReference: tx_ref,  // Save the unique tx_ref
       });
 
       const createdOrder = await order.save();
@@ -82,27 +91,38 @@ const createHairOrder = asyncHandler(async (req, res) => {
 
 // Verify payment
 const verifyPayment = asyncHandler(async (req, res) => {
-  const { transactionId } = req.body;
+  const { tx_ref } = req.query;  // Extract tx_ref from the query parameters
+
+  // Validate tx_ref exists
+  if (!tx_ref) {
+    return res.status(400).json({ message: 'Transaction reference is required' });
+  }
 
   try {
-    const response = await axios.get(`${FLUTTERWAVE_BASE_URL}/transactions/${transactionId}/verify`, {
-      headers: { Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}` },
+    // Make the API call to verify the payment using tx_ref
+    const response = await axios.get(`${process.env.FLUTTERWAVE_BASE_URL}/transactions/${tx_ref}/verify`, {
+      headers: { Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}` },
     });
 
+    // Check if the payment was successful
     if (response.data.status === 'success' && response.data.data.status === 'successful') {
+      // Update the order status in the database
       const order = await HairOrder.findOneAndUpdate(
-        { flutterwaveTransactionId: transactionId },
+        { transactionReference: tx_ref },  // Use tx_ref for the lookup
         { paymentStatus: 'Paid' },
         { new: true }
       );
 
-      if (!order) return res.status(404).json({ message: 'Order not found' });
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
 
       return res.status(200).json({ message: 'Payment verified and order updated', order });
     } else {
-      return res.status(400).json({ message: 'Payment verification failed' });
+      return res.status(400).json({ message: 'Payment verification failed', details: response.data });
     }
   } catch (error) {
+    console.error('Error verifying payment:', error); // Log error for debugging
     return res.status(500).json({ message: 'Error verifying payment', error: error.message });
   }
 });
