@@ -7,10 +7,11 @@ const HairOrderSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    customer: {
-      type: String,
-      required: true,
-    },
+    customer: { 
+      type: mongoose.Schema.Types.ObjectId,
+       ref: "Customer",
+       required: true
+     }, // Reference to Customer,
     email: {
       type: String,
       required: true,

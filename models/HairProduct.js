@@ -21,14 +21,14 @@ const HairProductSchema = new mongoose.Schema(
     },
 
     // stock
-    quantity: {//stock
-      type: Number,
-      required: true,
-    },
+    // quantity: {//stock
+    //   type: Number,
+    //   required: true,
+    // },
     stock: {
       type: Number,
       required: true,
-      min: 0,
+      min: [0, 'Stock cannot be negative'],
       default:0
   },
     brand: {

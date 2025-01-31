@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt"); // Make sure bcrypt is installed
 
-// Define the customer schema
+// Define the hair customer schema
 const customerSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -48,6 +48,11 @@ const customerSchema = new mongoose.Schema({
   image: {
     type: String
 },
+orders: [
+  { type: mongoose.Schema.Types.ObjectId,
+     ref: "HairOrder",
+   }],
+
   createdAt: {
     type: Date,
     default: Date.now,
