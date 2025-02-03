@@ -12,49 +12,59 @@ const createHairOrder = asyncHandler(async (req, res) => {
   const { customer, email, phone, items, shippingPrice } = req.body;
 
   if (!items || items.length === 0) {
-    return res.status(400).json({ message: 'Order must contain at least one item.' });
+    return res.status(400).json({ message: "Order must contain at least one item." });
   }
 
   let total = 0;
+  let updatedProducts = [];
+
   for (const item of items) {
     const product = await HairProduct.findById(item._id);
 
     if (!product) {
-      return res.status(404).json({ message: `Product with ID ${item.productId} not found.` });
+      return res.status(404).json({ message: `Product with ID ${item._id} not found.` });
     }
 
     if (product.stock < item.quantity) {
       return res.status(400).json({
-        message: `Insufficient stock for product ${product.productName}. Available: ${product.stock}.`,
+        message: `Insufficient stock for ${product.productName}. Available: ${product.stock}`,
       });
     }
-    
-    total += product.price * item.quantity + (shippingPrice || 0);
+
+    total += product.price * item.quantity;
+    updatedProducts.push({ product, quantity: item.quantity });
 
     product.stock -= item.quantity;
     product.sales += item.quantity;
     await product.save();
   }
 
+  if (shippingPrice) total += shippingPrice; // Add shipping cost
+
   try {
     // Generate a unique transaction reference
-    const randomString = crypto.randomBytes(6).toString('hex');  // Generate a random string of 12 characters (6 bytes)
-    const tx_ref = `HAIR-ORD-${Date.now()}-${randomString}`;  // Combine timestamp and random string to make it unique
+    const tx_ref = `HAIR-ORD-${crypto.randomUUID()}`;
 
     const paymentData = {
-      tx_ref,  // Use the unique tx_ref here
+      tx_ref,
       amount: total,
-      currency: 'NGN',
+      currency: "NGN",
       redirect_url: `${process.env.FRONTEND_URL}/payment-success`,
       customer: { email, phone_number: phone, name: customer },
-      customizations: { title: 'Hair Order Payment', description: 'Payment for your hair order' },
+      customizations: {
+        title: "Hair Order Payment",
+        description: "Payment for your hair order",
+      },
     };
 
-    const response = await axios.post(`${FLUTTERWAVE_BASE_URL}/payments`, paymentData, {
-      headers: { Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}` },
+    const response = await axios.post("https://api.flutterwave.com/v3/payments", paymentData, {
+      headers: {
+        Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
+        "Content-Type": "application/json",
+      },
     });
 
-    if (response.data.status === 'success') {
+    if (response.data.status === "success") {
       const order = new HairOrder({
         customer,
         email,
@@ -66,29 +76,29 @@ const createHairOrder = asyncHandler(async (req, res) => {
           price: item.price,
         })),
         total,
-        paymentStatus: 'Pending',
-        flutterwaveTransactionId: tx_ref,  // Store the transaction ID from Flutterwave
-        // transactionReference: tx_ref,  // Save the unique tx_ref
+        paymentStatus: "Pending",
+        flutterwaveTransactionId: response.data.data.id,
+        transactionReference: tx_ref,
       });
 
       const createdOrder = await order.save();
       return res.status(201).json({ order: createdOrder, paymentLink: response.data.data.link });
     } else {
-      throw new Error('Failed to create payment request');
+      throw new Error("Flutterwave payment initialization failed.");
     }
   } catch (error) {
-    for (const item of items) {
-      const product = await HairProduct.findById(item.productId);
-      if (product) {
-        product.stock += item.quantity;
-        product.sales -= item.quantity;
-        await product.save();
-      }
+    console.error("Payment Initialization Error:", error.response ? error.response.data : error.message);
+
+    // Rollback stock updates on failure
+    for (const { product, quantity } of updatedProducts) {
+      product.stock += quantity;
+      product.sales -= quantity;
+      await product.save();
     }
-    return res.status(400).json({ message: 'Payment initialization failed', error: error.message });
+
+    return res.status(400).json({ message: "Payment initialization failed", error: error.message });
   }
 });
-
 // Verify payment
 const verifyPayment = asyncHandler(async (req, res) => {
   const { tx_ref } = req.query;  // Extract tx_ref from the query parameters
