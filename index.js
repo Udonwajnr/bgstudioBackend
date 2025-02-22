@@ -44,16 +44,14 @@ app.use(express.urlencoded({ extended: false }));
 // app.set('trust proxy',1)
 // Session middleware
 
-
-
 // // Utility function for structured responses
-// const sendResponse = (res, statusCode, message, data = null) => {
-//   return res.status(statusCode).json({
-//     success: statusCode >= 200 && statusCode < 300,
-//     message,
-//     data,
-//   });
-// };
+const sendResponse = (res, statusCode, message, data = null) => {
+  return res.status(statusCode).json({
+    success: statusCode >= 200 && statusCode < 300,
+    message,
+    data,
+  });
+};
 
 app.get('/logout', (req, res, next) => {
   req.logout((err) => {
@@ -73,9 +71,9 @@ app.get('/logout', (req, res, next) => {
 });
 
 // Root route
-// app.get("/", (req, res) => {
-//   sendResponse(res, 200, "Hello World! This is a success message");
-// });
+app.get("/", (req, res) => {
+  sendResponse(res, 200, "Hello World! This is a success message");
+});
 
 // Routes
 // Authentication routes
