@@ -14,7 +14,7 @@ const router = express.Router();
 router.post('/', createHairOrder);
 
 // Verify payment
-router.post('/verify-payment', verifyPayment);
+router.get('/verify-payment', verifyPayment);
 
 // Get all orders
 router.get('/', getAllOrders);

@@ -4,9 +4,6 @@ const axios = require('axios');
 const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');  // Importing crypto to generate a random string
 
-const FLUTTERWAVE_SECRET_KEY = process.env.FLUTTERWAVE_SECRET_KEY;
-const FLUTTERWAVE_BASE_URL = 'https://api.flutterwave.com/v3';
-
 // Create a New Order
 const createHairOrder = asyncHandler(async (req, res) => {
   const { customer, email, phone, items, shippingPrice } = req.body;
@@ -32,6 +29,7 @@ const createHairOrder = asyncHandler(async (req, res) => {
     }
 
     total += product.price * item.quantity;
+    console.log(total)
     updatedProducts.push({ product, quantity: item.quantity });
 
     product.stock -= item.quantity;
@@ -101,39 +99,46 @@ const createHairOrder = asyncHandler(async (req, res) => {
 });
 // Verify payment
 const verifyPayment = asyncHandler(async (req, res) => {
-  const { tx_ref } = req.query;  // Extract tx_ref from the query parameters
+  const { tx_ref } = req.query; // Extract tx_ref from query parameters
 
-  // Validate tx_ref exists
   if (!tx_ref) {
-    return res.status(400).json({ message: 'Transaction reference is required' });
+    return res.status(400).json({ message: "Transaction reference is required" });
   }
 
   try {
-    // Make the API call to verify the payment using tx_ref
-    const response = await axios.get(`${process.env.FLUTTERWAVE_BASE_URL}/transactions/${tx_ref}/verify`, {
-      headers: { Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}` },
-    });
+    // Verify the payment using Flutterwave's "verify_by_reference"
+    const response = await axios.get(
+      `${process.env.FLUTTERWAVE_BASE_URL}/transactions/verify_by_reference?tx_ref=${tx_ref}`,
+      {
+        headers: { Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}` },
+      }
+    );
 
-    // Check if the payment was successful
-    if (response.data.status === 'success' && response.data.data.status === 'successful') {
-      // Update the order status in the database
+    if (
+      response.data.status === "success" &&
+      response.data.data.status === "successful"
+    ) {
+      // Update order in database
       const order = await HairOrder.findOneAndUpdate(
-        { transactionReference: tx_ref },  // Use tx_ref for the lookup
-        { paymentStatus: 'Paid' },
+        { transactionReference: tx_ref },
+        { paymentStatus: "Paid" },
         { new: true }
       );
 
       if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
+        return res.status(404).json({ message: "Order not found" });
       }
 
-      return res.status(200).json({ message: 'Payment verified and order updated', order });
+      return res.status(200).json({ message: "Payment verified and order updated", order });
     } else {
-      return res.status(400).json({ message: 'Payment verification failed', details: response.data });
+      return res.status(400).json({
+        message: "Payment verification failed",
+        details: response.data,
+      });
     }
   } catch (error) {
-    console.error('Error verifying payment:', error); // Log error for debugging
-    return res.status(500).json({ message: 'Error verifying payment', error: error.message });
+    console.error("Error verifying payment:", error.response?.data || error.message);
+    return res.status(500).json({ message: "Error verifying payment", error: error.message });
   }
 });
 

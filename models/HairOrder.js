@@ -30,11 +30,11 @@ const HairOrderSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    status: {
-      type: String,
-      enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
-      default: 'Pending',
-    },
+    // status: {
+    //   type: String,
+    //   enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+    //   default: 'Pending',
+    // },
     items: [
       {
         productId: {
@@ -85,15 +85,12 @@ const HairOrderSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to generate unique orderId
-HairOrderSchema.pre('save', async function (next) {
+HairOrderSchema.pre("save", async function (next) {
   if (this.isNew) {
     try {
-      const counter = await Counter.findOneAndUpdate(
-        { name: 'hairOrderId' },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true } // Create the counter if it doesn't exist
-      );
-      this.orderId = `ORD${String(counter.seq).padStart(4, '0')}`; // Example: ORD0001
+      const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+      const randomString = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 random letters/numbers
+      this.orderId = `ORD-${randomString}-${timestamp}`; // Example: ORD-A1B2-567890
       next();
     } catch (error) {
       next(error);
