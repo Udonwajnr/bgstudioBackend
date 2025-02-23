@@ -123,7 +123,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
         { transactionReference: tx_ref },
         { paymentStatus: "Paid" },
         { new: true }
-      );
+      ).populate("customer","fullName email phoneNumber");
 
       if (!order) {
         return res.status(404).json({ message: "Order not found" });

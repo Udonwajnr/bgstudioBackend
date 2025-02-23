@@ -11,7 +11,6 @@ const imagePath = path.join(__dirname, '../IMG-20241130-WA0002.jpg'); // Replace
 const imageBase64 = fs.readFileSync(imagePath).toString('base64');
 // console.log(imageBase64)
 
-
 const createBooking = asyncHandler(async (req, res) => {
     const { clientName, service, dateTime, phoneNumber, email, stylist } = req.body;
 
