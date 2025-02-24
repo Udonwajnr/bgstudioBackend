@@ -3,6 +3,10 @@ const HairProduct = require('../models/HairProduct');
 const axios = require('axios');
 const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');  // Importing crypto to generate a random string
+const nodemailer = require("nodemailer");
+const { jsPDF } = require("jspdf");
+const html2canvas = require("html2canvas");
+const {generatePaymentReceipt,sendEmail} = require('../middleware/hairOrderMiddleware')
 
 // Create a New Order
 const createHairOrder = asyncHandler(async (req, res) => {
@@ -97,16 +101,17 @@ const createHairOrder = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Payment initialization failed", error: error.message });
   }
 });
+
 // Verify payment
 const verifyPayment = asyncHandler(async (req, res) => {
-  const { tx_ref } = req.query; // Extract tx_ref from query parameters
+  const { tx_ref } = req.query;
 
   if (!tx_ref) {
     return res.status(400).json({ message: "Transaction reference is required" });
   }
 
   try {
-    // Verify the payment using Flutterwave's "verify_by_reference"
+    // Verify the payment using Flutterwave
     const response = await axios.get(
       `${process.env.FLUTTERWAVE_BASE_URL}/transactions/verify_by_reference?tx_ref=${tx_ref}`,
       {
@@ -118,19 +123,36 @@ const verifyPayment = asyncHandler(async (req, res) => {
       response.data.status === "success" &&
       response.data.data.status === "successful"
     ) {
-      // Update order in database
-      const order = await HairOrder.findOneAndUpdate(
-        { transactionReference: tx_ref },
-        { paymentStatus: "Paid" },
-        { new: true }
-      ).populate("customer","fullName email phoneNumber");
+      // Find the order in database
+      let order = await HairOrder.findOne({ transactionReference: tx_ref }).populate(
+        "customer",
+        "fullName email phoneNumber"
+      );
 
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
 
+      // If payment status is already "Paid", don't do anything
+      if (order.paymentStatus === "Paid") {
+        return res.status(200).json({ message: "Payment already verified",order:order });
+      }
+
+      // Update order status
+      order.paymentStatus = "Paid";
+      await order.save();
+
+      // Generate the receipt PDF
+      const pdfBuffer = await generatePaymentReceipt(order);
+
+      // Send email with PDF attachment
+      await sendEmail(order.email, "Payment Successful", "Your payment was successful. Here is your receipt.", pdfBuffer,order);
+
       return res.status(200).json({ message: "Payment verified and order updated", order });
     } else {
+      // If payment fails, send email without attachment
+      await sendEmail(order.customer.email, "Payment Failed", "Your payment was unsuccessful. Please try again.");
+
       return res.status(400).json({
         message: "Payment verification failed",
         details: response.data,
