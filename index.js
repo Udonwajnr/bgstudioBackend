@@ -20,8 +20,9 @@ const corsOptions = {
       "http://localhost:3000",
       "https://bgstudio-admin.vercel.app",
       "https://bg-salon.vercel.app",
-      "https://bgstudiobackend-1.onrender.com"
-    
+      "https://bgstudiobackend-1.onrender.com",
+      "https://bgstudiobackend-a60m.onrender.com/"
+  
     ];
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
