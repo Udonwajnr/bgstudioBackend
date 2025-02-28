@@ -21,7 +21,8 @@ const corsOptions = {
       "https://bgstudio-admin.vercel.app",
       "https://bg-salon.vercel.app",
       "https://bgstudiobackend-1.onrender.com",
-      "https://bgstudiobackend-a60m.onrender.com/"
+      "https://bgstudiobackend-a60m.onrender.com/",
+      "https://testing-site-livid-nine.vercel.app/"
   
     ];
     if (allowedOrigins.includes(origin) || !origin) {
