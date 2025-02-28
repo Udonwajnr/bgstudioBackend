@@ -192,8 +192,8 @@ const login = asyncHandler(async (req, res) => {
   const refreshToken = jwt.sign({ _id: user._id, email: user.email }, process.env.REFRESH_SECRET, { expiresIn: "7d" }); //7days
 
   // Store refresh token in database
-  user.refreshToken = refreshToken;
-  await user.save();
+  // user.refreshToken = refreshToken;
+  // await user.save();
 
   // Set cookies
   res.cookie("accessToken", accessToken, {
@@ -204,7 +204,7 @@ const login = asyncHandler(async (req, res) => {
   });
 
   res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: true,
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7days
