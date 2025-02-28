@@ -27,6 +27,6 @@ router.get("/verify/:token", verifyEmail); // Verify email
 router.post("/resend-verification", resendVerificationLink); // Resend verification link
 router.post("/forgot-password", forgotPassword); // Forgot password
 router.post("/reset-password/:token", resetPassword); // Reset password
-router.post("/logout",protect,logout); // Logou t user
+router.post("/logout",logout); // Logou t user
 
 module.exports = router;
