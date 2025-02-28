@@ -7,7 +7,6 @@ const Customer = require("../models/Customer"); // Adjust the path based on your
 const axios = require('axios');
 const { oauth2Client } = require('../utils/googleClient');
 
-
 const CreateUser = asyncHandler(async (req, res) => {
   const { fullName, email, password, confirmPassword, phoneNumber } = req.body;
 
