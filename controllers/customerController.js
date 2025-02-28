@@ -367,7 +367,7 @@ const googleAuth = async (req, res, next) => {
     try {
         const googleRes = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(googleRes.tokens);
-        
+        console.log(oauth2Client.setCredentials(googleRes.tokens))
         const userRes = await axios.get(
             `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
         );
@@ -474,32 +474,39 @@ const refreshToken = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
 };
+
 const logout = async (req, res) => {
   try {
-      if (!req.user) {
-          return res.status(400).json({ message: "No user logged in" });
-      }
+    if (!req.user || !req.user._id) {
+      return res.status(400).json({ message: "No user logged in" });
+    }
+    console.log(req.user)
 
-      const user = await Customer.findById(req.user._id);
-      if (user) {
-          user.refreshToken = null; // Remove refresh token
-          await user.save();
-      }
+    // Clear cookies properly with same settings as they were set
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
 
-      // Clear cookies
-      res.clearCookie("accessToken");
-      res.clearCookie("refreshToken");
+    console.log("Cookies cleared:", req.cookies); // Debugging
 
-      // Send the success response once
-      return res.status(200).json({ message: "Logged out successfully" });
+    return res.status(200).json({ message: "Logged out successfully" });
   } catch (err) {
-      return res.status(500).json({ message: "Error logging out", error: err.message });
+    console.error("Logout error:", err);
+    return res.status(500).json({ message: "Error logging out", error: err.message });
   }
 };
 
 
 
-  module.exports = {
+module.exports = {
     CreateUser,
     verifyEmail,
     login,
