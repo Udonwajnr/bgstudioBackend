@@ -3,43 +3,28 @@ const asyncHandler = require("express-async-handler");
 const Customer = require("../models/Customer");
 
 const protect = asyncHandler(async (req, res, next) => {
-  let token;
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Assumes Bearer token
 
-  console.log("Headers:", req.headers);
-    console.log("Cookies:", req.cookies)
-  // Check for Bearer token in Authorization header
-  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-    token = req.headers.authorization.split(" ")[1];
-  } 
-  // If no Bearer token, check for httpOnly cookie
-  else if (req.cookies.accessToken) {
-    token = req.cookies.accessToken;
-  }
-
-  console.log(req.cookies.accessToken)
-
-  if (!token) {
-    return res.status(401).json({ message: "Not authorized, no token provided" });
-  }
-
-  try {
-    // Verify JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Find user in DB (excluding password)
-    req.user = await Customer.findById(decoded._id).select("-password");
-    
-    if (!req.user) {
-      return res.status(404).json({ message: "User not found" });
+    if (!token) {
+        return res.status(401).json({ msg: 'No token provided' });
     }
 
-    // Proceed to next middleware
-    return next();
-  } catch (error) {
-    console.error("JWT Verification Error:", error.message);
-    return res.status(401).json({ message: "Not authorized, invalid token" });
-  }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await Customer.findById(decoded._id).select("-password"); // Attach user object
+
+        if (!req.user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        next(); // Proceed to the next middleware or route handler
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ msg: 'Token expired' });
+        }
+        return res.status(403).json({ msg: 'Invalid token' });
+    }
 });
 
-
-module.exports = {protect};
+module.exports = { protect };
