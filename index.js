@@ -22,7 +22,7 @@ const corsOptions = {
       "https://bg-salon.vercel.app",
       "https://bgstudiobackend-1.onrender.com",
       "https://bgstudiobackend-a60m.onrender.com/",
-      "https://bg-test-site.netlify.app/"
+      "https://bg-test-site.netlify.app"
   
     ];
     if (allowedOrigins.includes(origin) || !origin) {
